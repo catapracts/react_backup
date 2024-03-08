@@ -1,0 +1,514 @@
+09:38
+SPA(single page app.)
+- single view page(index.html)
+- component(called in meta) are changed in view
+- When client request specific page, then only modified parts are rendering
+- client(browser) do rendering(make HTML page / only changed sections) -> decreasing Overload
+- make virtual DOM(faster renfering at revised portion / virtual space)
+- client just get values(Sever only transfer values after processing in BE) from Server by XML(hard to reading code) or JSON(Format) 
+and when client receive values, client starts rendering process.
+- 1 view(index.html) : N Components(FE의 기반 기술들의 묶음, 단위)
+- call component and use it
+- decrease duplicate codes
+- easily maintainence
+- asynchronous communication - ex : XMLHttpRequest, Fetch, AJax, xios
+- ex : angular(made by Google, but 2022 quit supporting / 1st SPA),
+react(made by Meta) - globally used but requiring a lot of study
+view(made by chineese developer) - easily use but not largely supported
+
+
+MPA(Multi Page App.)
+- rendering location : server side = create html code at server == WAS(WebApp.Server / ex- tomcat, jboss, wepsphere)
+- n view pages
+- When client request specific page, then all pages are rendering - If using ajax(unsynchronized communication) it can be partialy rendering 
+- transfer to FE after processing in BE
+- increasing Overload in Server-side
+- increasing repeated code caused by number of pages
+- hard repairing or update in Enterprise site(ex- FaceBook(Meta) etc)  caused by number of pages
+- ex : JSP, Thymeleaf, jQuery etc
+
+jsx - html, css, js 같이 사용 / 새로운 문법 / react에서 component 만들어서 사용하기 위한 용도
+
+react
+- developed by meta(舊 FaceBook)
+- SPA(Single Page application)를 구현하기 위한 JavaScript Library
+- FE의 기반 기술(HTML, CSS, JavaScript)이 반복되면서 하나의 component를 만들어놓고 이걸 가져다 쓴다.
+
+============================================================================================================
+10:40
+react setting
+- import variable Libraries by node.js(LTS ver. = developed, Long time support(more than 3 years) / Curr ver. = developing)
+Download Link : https://nodejs.org/en/download/
+
+C:\Program Files\nodejs\
+npm = command in node.js
+cmd(wirh admin auth.) - command : node -v
+
+use npm, npx to install react & libraries
+command for download and manage libraries using at React
+- npm(basic), 
+- yarn(need to install but fast)
+- vite(need to install but fast / requirement in react)
+
+C:\Workspace-React
+yarn 설치(cmd - globally installed for using to all react prohects)
+npm install --global yarn(npm install -g yarn, npm i -g yarn)
+yarn -v, npm -v, npm update
+
+react project 생성
+yarn create react-app my-react-app - proj. name = my-react-app / proj. type = react-app
+
+cd my-react-app
+yarn start = execute react proj. localhost:3000
+ctrl + c => close react proj.
+
+
+============================================================================================================
+11:37
+
+pwd : C:\Workspace-React
+npx create-react-app my-react-app2
+
+pwd : C:\Workspace-React\my-react-app2
+npm start
+
+react는 vscode에서 개발 진행
+
+Project Structure
+node_modules : react에서 사용할 각종 Library들이 저장되어 있는 폴더 -> git에 push할 때 안 올라간다.
+public : space for view page(return to client) = SPA
+src : space for component(*.js)
+- class type : classical
+- function type : use in present / ex - reacthook
+- binding HTML, CSS, JS ro component(unit) / declare for using
+- created by jsx(grammer - extending javascript to easily use rendering)
+yarn.lock -> 현재 프로젝트에서 사용하는 라이브러리가 등록됨 <- yarn으로 프로젝트 생성 시
+package-lock.json : 현재 project에서 사용하는 library 등록됨(detail) <- npm으로 프로젝트 생성 시
+package.json : 현재 project에서 사용하는 library 등록됨(breifly)
+
+module 날리고 npm install하면 package-lock.json과 package.json에서 저장된 설정을 기반으로 Library 재생성됨
+============================================================================================================
+12:37
+
+Module Directory(noode_modules) - 없으면 작동 안됨
+module 날리고 yarn install하면 yarn.lock에서 저장된 설정을 기반으로 Library 재생성됨
+
+github에 push 후 local에서 폴더 제거 -> clone으로 다운 받기 -> module 복구 후 실행
+
+git config --global --add safe.directory C:/Workspace-React/my-react-app2
+git branch -m main
+
+cd C:\Users\hi\Desktop\git_react
+
+============================================================================================================
+14:36
+jsx를 이용해서 프로그래밍 하면 -> webpack -> js로 변환시켜준다.
+
+vscode
+ctrl + shift + ` -> terminal 열기 - powershell(기본) : 정책 편집 / command prompt로 바꾸기
+여기서 yarn start해서 프로젝트 진행
+
+가상웹서버 작동 시 포트번호 변경 후 작동 : http://localhost:3000에서 작동
+프로젝트가 여러 개일 경우 포트 번호 변경시켜서 작동시키기 가능 -> package.json에서 설정
+
+yarn
+"start": "react-scripts start" -> "start": "set PORT=3001 && react-scripts start"로 변경 : react 작동시 port 변경(package.json)
+
+npm
+"start": "react-scripts start" -> "start": "set PORT=3002 && react-scripts start"로 변경 : react 작동시 port 변경(package.json)
+
+
+src/index.js
+document.getElementById('root') -> div안의 id=root인 것에 대한 가상 DOM
+<App />이라는 component를 import
+
+src/App.js
+<div className="App">만 남기고 다 날림
+이 안에 code 주입하면  위에 <div id="root"></div>여기 안에 위치한다.
+
+
+F12 - Elements tab -> index.html
+public/index.html = client에게 던져지는 출력 페이지 = SPA
+<body>
+<div id="root"></div> -> 모든 react의 component는 여기 안에서 rendering되서 출력됨
+
+Rendering 순서 : src/App.js -> src/index.js -> public/index.html
+
+src/App.js 여기서 programming한 거 저장
+
+component 선언시 대문자로 시작
+function App()  -> 이것처럼
+{
+  return (
+    <div className="App">
+      <h1>My 1st React Component</h1>
+      <h2>Output After Rendering</h2>
+    </div>
+  );
+}
+
+============================================================================================================
+15:42
+
+component는 하나 만들고 계속 호출해서 재사용
+외부에서 component 호출하기 위해서는 export해야 외부에서 import가능
+component 이름은 첫 글자는 반드시 대문자로 선언
+함수형 component - 객체형component의 단점 보완
+JSX문법으로 작성 - javascript의 문법을 확장해서 만든 새로운 문법
+
+function()
+{
+ JavaScript code block - declare variable, asynchronize communication, JS function
+ return
+ 여기에서는 //주석 가능
+ (
+  JSX Block - output / if 사용 불가능 - 3항 연산자 써야함
+  여기서 주석 쓰려면, {/* */} 이렇게 써야 한다. / //이거 쓰면 그냥 출력된다.
+ );
+}
+<태그 //이렇게도 주석 가능
+>
+
+html 태그는 소문자로 사용 / component 첫글자는 대문자 / html 태그 닫아야 함
+
+return문 안에서 tag는
+<div></div> -> <div />이렇게 써야 함(단일태그)
+아니면, 이렇게 감싸서 써야함
+<div>
+<div></div>
+</div>
+
+외부에서 import해서 가져다 쓴다. -> component에서 export 설정해줘야 한다.
+import Header from './components/Header';
+
+
+
+============================================================================================================
+16:40
+
+태그 적용 안 하고 return시 사용 <Fragment> -> import해야함
+
+export default로 내보낸 component는 {}안 쓰고 import 가능
+export로 내보낸 component는 {Fragment} block 내부에서 import
+
+import { Fragment } from "react";
+
+function Header()
+{
+    return
+    (
+        <Fragment>
+	그냥 내보내진다.            
+        </Fragment>
+    );
+}
+
+export default Header;
+
+위에랑 같은 역할 하는게 아래 거다
+
+export function Header()
+{
+    return
+    (
+        <>
+            <h1>4th Header</h1>
+            <h2>Same ability to Fragment</h2>
+        </>
+    );
+}
+
+*export위치는 변경 가능하다
+
+export default쓴 Component의 경우 src/App.js에서 import 시
+import Header from './components/Header4';
+
+export만 쓴 Component의 경우 src/App.js에서 import 시
+import {Header} from './components/Header4';
+
+<br /> <p />
+
+src/components/App01.js
+function App01()
+{
+    const name = 'React';
+    return
+    (
+    <>
+        <h1/>{name}
+
+    </>
+    );
+}
+
+export default App01;
+
+
+
+src/App.js
+import logo from './logo.svg';
+import './App.css';
+
+import Header from './components/Header';
+import Footer from './components/Footer';
+import App01 from './components/App01';
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <h1>My 1st React Component</h1>
+      <h2>Output After Rendering</h2>
+
+      <Footer />
+      <br/> <p/>
+      <hr/>
+      <App01/>
+
+    </div>
+  );
+}
+
+export default App;
+
+
+src/components/App02.js
+function App02()
+{
+    const name = 'orange';
+
+    return
+    (
+        <div>
+            
+        </div>
+    );
+}
+
+export default App02;
+
+export default function App02()
+{
+    const name = 'orange';
+
+    return
+    (
+        <div>
+            <hr/>
+            {
+              name === 'orange' ? <h1>orange</h1> : <h1>Apple</h1>
+            }
+        </div>
+    );
+}
+
+
+src/App.js
+import logo from './logo.svg';
+import './App.css';
+
+import Header from './components/Header';
+import Footer from './components/Footer';
+import App01 from './components/App01';
+import App02 from './components/App02';
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <h1>My 1st React Component</h1>
+      <h2>Output After Rendering</h2>
+
+      <Footer />
+      <br/> <p/>
+      <hr/>
+      <App01/>
+      <br/> <p/>
+      <hr/>
+      <App02/>
+    </div>
+  );
+}
+
+export default App;
+
+
+============================================================================================================
+17:46
+
+src/components/App03.js
+function App03()
+{
+    //js block
+    const name = 'Banana';
+
+    //JSX Block - 3항 연산자, &&, ||
+    return
+    (
+        <div>
+            {name==='Banana' ? (<h1>ananaB</h1>) : null}
+        </div>
+    );
+}
+
+export default App03;
+
+
+
+src/App.js
+import logo from './logo.svg';
+import './App.css';
+
+import Header from './components/Header';
+import Footer from './components/Footer';
+import App01 from './components/App01';
+import App02 from './components/App02';
+import App03 from './components/App03';
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <h1>My 1st React Component</h1>
+      <h2>Output After Rendering</h2>
+
+      <Footer />
+      <br/> <p/>
+      <hr/>
+      <App01/>
+      <br/> <p/>
+      <hr/>
+      <App02/>
+      <br/> <p/>
+      <hr/>
+      <App03/>
+    </div>
+  );
+}
+
+export default App;
+
+
+Short Circuit 발생시켜서 작동시키기
+-> 참 && 참or거짓 : 뒤에 내용 참, 거짓 확인 후 참 실행
+-> 거짓 && 참or거짓 : 뒤에 내용 참, 거짓 확인X 무시(작동X) <==> Short Circuit
+-> 참 || 참or거짓 : 뒤에 내용 참, 거짓 확인X 무시(작동X) <==> Short Circuit
+-> 거짓 || 참or거짓 : 뒤에 내용 참, 거짓 확인 후 참 실행
+
+
+src/components/App04.js
+function App04()
+{
+    const name = 'F-22A Raptor';
+
+    //&& - short circuit replaced 3항 연산자(ternary operator or Conditional operator)
+    return
+    (
+        <div>
+            {name === 'F-22A Raptor' && (<h1>FOX2</h1>)}
+        </div>
+    );
+}
+
+export default App04;
+
+
+src/App.js
+import logo from './logo.svg';
+import './App.css';
+
+import Header from './components/Header';
+import Footer from './components/Footer';
+import App01 from './components/App01';
+import App02 from './components/App02';
+import App03 from './components/App03';
+import App04 from './components/App04';
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <h1>My 1st React Component</h1>
+      <h2>Output After Rendering</h2>
+
+      <Footer />
+      <br/> <p/>
+      <hr/>
+      <App01/>
+      <br/> <p/>
+      <hr/>
+      <App02/>
+      <br/> <p/>
+      <hr/>
+      <App03/>
+      <br/> <p/>
+      <hr/>
+      <App04/>
+    </div>
+  );
+}
+
+export default App;
+
+
+src/components/App05.js
+function App05()
+{
+    //undefined자체 return시 Error 발생
+    //undefined = 변수에 어떤 자료형을 넣을지 알 수 없는 경우
+    const name = undefined;
+    
+    // return name; 시 오류발생 -> 옛날 버전에는 오류 났었는데, 지금은 안 나네?
+    return name || "value가 undefined다.";
+
+}
+
+export default App05;
+
+
+
+src/App.js
+import logo from './logo.svg';
+import './App.css';
+
+import Header from './components/Header';
+import Footer from './components/Footer';
+import App01 from './components/App01';
+import App02 from './components/App02';
+import App03 from './components/App03';
+import App04 from './components/App04';
+import App05 from './components/App05';
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <h1>My 1st React Component</h1>
+      <h2>Output After Rendering</h2>
+
+      <Footer />
+      <br/> <p/>
+      <hr/>
+      <App01/>
+      <br/> <p/>
+      <hr/>
+      <App02/>
+      <br/> <p/>
+      <hr/>
+      <App03/>
+      <br/> <p/>
+      <hr/>
+      <App04/>
+      <br/> <p/>
+      <hr/>
+      <App05/>
+
+
+
+    </div>
+  );
+}
+
+export default App;
+
+

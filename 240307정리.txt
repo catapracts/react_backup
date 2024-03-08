@@ -1,0 +1,529 @@
+09:32
+
+*JSX문법 中 특이사항 발견
+function App01()
+{
+    const name = 'React';
+    return 
+  ( -> 괄호 여기에 두면 오류뜬다
+        <div>
+        <h1>{name} </h1>
+
+    </div>
+    ); 
+}
+
+export default App01;
+
+
+function App01()
+{
+    const name = 'React';
+    return ( -> 괄호 여기에 둬야 동작한다.
+        <div>
+        <h1>{name} </h1>
+
+    </div>
+    ); 
+}
+
+export default App01;
+
+React - JavaScript UI Library 中 1개
+Ajax, xios사용
+
+Strider, Cyclops, Spare, Mage, Golem, Osea, Erusia
+Trigger, Count, Wiseman, Lanza, Clown, SOL, Full Band, Champ, Tabloid
+F-22A Raptor F-15C Eagle F-16C Fighting Falcon
+F-14 Tomcat F/A-18E SuperHornet
+Su-23 Su-35 Su-57
+MIG-29 A-10C
+X02S- Strike Wyvern
+ADF-11 DarkStar
+PostStall / Cobra / PowerRoof maneuver
+Charge Assault / 444 / Battle of FarBanti / Light House / Dark Blue
+
+yarn으로는 숫자 or _ 같은 거 들어간 프로젝트 이름으로 못 만든다.는 걸 발견(모든 경우인지는 확실X)
+
+yarn create react-app 02-movie : 생성 안 됨
+yarn create react-app 02_movie : 생성 안 됨
+yarn create react-app movie-02 : 생성됨
+
+index.js
+<App /> = UI 전체
+<App />의 실제 내용 = import App from './App'; 中 App얘가 실제 내용
+<div id ="root"></div> = component가 배치되는 곳
+
+
+이미지 태그 사용 : <img src={} />
+html에서 tag에 class설정할 때, class=""이렇게 썼는데, React에서는 className=""이렇게 해야 한다.
+className="" <=> class=""
+
+<hr />써서 구분
+
+Dummy.js = component
+"page": 1, <=> key:value pair
+key 중에 ""없으면 객체임
+value로 [](배열)사용 가능
+배열 안에 객체 or data들어가고 또 그 안에 배열이 들어가는 등의 배치를 할 수 있다.
+JS 객체, JSON - {}사용
+객체 - system memory에 올라감
+네트워크 통해서 데이터 전송할 때는 JSON or xml로 변환해서 전송
+
+
+build = 배포판 만드는 과정
+command : yarn build
+package.json 파일 맨 밑에
+"homepage":"빌드경로" 이거 추가해서 빌드 경로 지정 가능
+
+============================================================================================================
+10:37
+React = 사용자 정의 태그 만들기 = Component 만드는 기술 - 재사용, 생산성↑
+Header + Nav + Article
+
+영화API제공 사이트(Base URL) - IMG_BASE_URL이라는 이름으로 사용할 예정
+https://image.tmdb.org/t/p/w1280/
+
+https://image.tmdb.org/t/p/w1280/rKgvctIuPXyuqOzCQ16VGdnHxKx.jpg -> 이런식으로 포스터 이미지 불러오기
+https://image.tmdb.org/t/p/w1280/3PCRWLeqp5y20k6XVzcamZR3BWF.jpg -> 이런식으로 포스터 이미지 불러오기
+
+Reactjs code snippets -> vscode 확장 프로그램 설치
+rsf입력하면 react component 형식 자동 완성 된다.
+props(properties?) = component 호출하면서 전달/수신되는 값
+
+src/components/Movie.js
+
+============================================================================================================
+11:37
+
+다음주 금요일 14:30 ~ 18:30 업체 관계자? 와서 뭐 한다고함
+props = 외부에서 component 호출 시 주입되는 값
+Dummy.js -> JSON형식으로 배열 안에 객체, 객체, 객체 이런식으로 있다
+
+그냥 export한 경우 import시 {}사용
+
+dummy(component).results(배열)안에 객체들이 gathering된다.
+map = 순환하면서 가지고 온다.
+(item) gathering한 객체 담는 변수
+
+
+App.js
+
+import logo from './logo.svg';
+import './App.css';
+import {dummy} from './Dummy';
+import Movie from './components/Movie';
+
+// dummy.results : 배열
+// dummy.results.map() : 배열의 각 방을 순환하면서 끄집어 온다.
+// item : 배열에서 각 방에 끄집어낸 값, {}
+
+
+
+function App() {
+  return (
+    <div>
+      <h1>JSON파일에서 영화 정보 불러와서 출력하기</h1>
+      <hr/>
+      
+      <div>
+        {
+          dummy.results.map( (item) => {
+
+            return <Movie 				-> component 호출
+                    title={item.title}			-> 가져온 객체의 property 호출
+                    poster_path = {item.poster_path}	-> 가져온 객체의 property 호출
+                    vote_average = {item.vote_average}	-> 가져온 객체의 property 호출
+            />
+          }
+
+          )
+        }
+      </div>
+
+    </div>
+  );
+}
+
+export default App;
+
+
+============================================================================================================
+12:31
+
+JSX Block(return();) = 1 Component - 특별한 경우 id 잘 안 쓴다. - 계속 호출되야하니까
+id는 unique한 값이므로 중복되면 매우 곤란해진다. 그래서 className을 대신 쓴다.
+
+src/App.js
+import logo from './logo.svg';
+import './App.css';
+import {dummy} from './Dummy';
+import Movie from './components/Movie';
+
+// dummy.results : 배열
+// dummy.results.map() : 배열의 각 방을 순환하면서 끄집어 온다.
+// item : 배열에서 각 방에 끄집어낸 값, {}
+
+
+
+function App() {
+  return (
+    <div>
+      <h1>JSON파일에서 영화 정보 불러와서 출력하기</h1>
+      <hr/>
+      
+      <div className="app-container">
+        {
+          dummy.results.map( (item) => {
+
+            return <Movie 
+                    title={item.title}
+                    poster_path = {item.poster_path}
+                    vote_average = {item.vote_average}
+            />
+          }
+
+          )
+        }
+      </div>
+
+    </div>
+  );
+}
+
+export default App;
+
+
+src/components/Movie.js
+import React from 'react';
+
+//props = 외부에서 component 호출 시 주입되는 값
+//poster_path, title, vote_average Dummy로부터 3개 값(props안에 3개 값) 받는다.
+
+
+function Movie({title, poster_path, vote_average}) {
+
+    //영화 정보 제공해 주는 사이트URL
+    const IMG_BASE_URL = "https://image.tmdb.org/t/p/w1280/";
+
+    return (
+        <div className="movie-container">
+            <img src = {IMG_BASE_URL + poster_path} alt='Movie Poster'/>
+            <div className="movie-info">
+                <h4>{title}</h4>
+                <span>{vote_average}</span>
+            </div>
+        </div>
+    );
+}
+
+export default Movie;
+
+wrap - width에 맞춰서 다음 줄로 넘겨주는 역할 / 기본 : nowrap
+justify-content: center; - 중앙에 정렬
+
+App.css
+.app-container -> src/App.js에서 div에 있는 className
+{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.movie-container -> src/components/Movie.js에서 return 바로 아래 있는 div에 있는 className
+{
+  width: 250px;
+  margin: 16px;
+  border-radius: 5px;
+  box-shadow: 3px 3px 5px rgba(0,0,0,0.1);
+}
+
+.movie-container img -> src/components/Movie.js에서 return 바로 아래 있는 div에 안에 있는 img의 className
+{
+  width: 100%;
+}
+
+.movie-info h4 -> src/components/Movie.js에서 return 바로 아래 있는 div에 안에 있는 div의 h4의 style 설정
+{
+  width: 85%;
+  margin: 0;
+}
+
+.movie-info -> src/components/Movie.js에서 return 바로 아래 있는 div에 안에 있는 div의 className
+{
+  display: flex;
+  padding: 20px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+
+============================================================================================================
+14:34
+
+node_modules 삭제 - 용량 때문에 삭제하고 나중에 사용할 일 있으면, 다시 설치 
+: 프로젝트 하나 끝나면 용량이 큰 상태라서 지우고 다시 설치
+Props are the information that you pass to a JSX tag.
+
+useState : 상태(값)이 변경되면 자동으로 렌더링 = react의 큰 장점 / Hook 中 하나
+import필요 : import { useState } from 'react';
+컴포넌트에서 동적인 값 =상태(state)
+
+useState 선언
+const [현재 상태, Setter 함수] = useState(초기값);  rerendering 발생
+현재의 상태를 수정하려면 Setter함수에다가 값을 집어넣으면 된다.
+
+함수형 컴포넌트 -> hook을 사용할 수 있다.
+hook의 종류는 다양
+
+태그 블락에 있는 스타일이 상단에 있는 스타일보다 우선순위가 높다.
+{{속성:값 pair}} = 객체형
+Number : {number} <=> 문자열 : 변수
+
+
+App.js
+import './App.css';
+import { useState } from 'react';
+
+function App() {
+
+  let name ='F-22A Raptor';
+
+  // useState 선언 Block
+  // number변수는 button click시 random함수에서 임의의 정수값을 저장하는 변수
+  // numberStyle변수는 number변수의 값이 짝수일 때 blue, 홀수일 때 red
+  const [number, setNumber] = useState(0);
+  const [numberStyle, setNumberStyle] = useState({color:'Blue'});
+
+
+  return (
+
+
+    <div className="App">
+        
+    <h1>Hello, {name}</h1>
+    <p style={{color:'blue'}}> <=> style={numberStyle}
+      Number : {number}
+    </p>
+
+    <div style={{color:'red', padding:20}}>
+      jsx Block에서 In-Line Style적용
+    </div>
+
+
+    </div>
+
+
+  );
+
+}
+
+export default App;
+
+============================================================================================================
+15:39
+
+useState 많이 쓴다. - 상태(Dynamic Value) 변경 시 rendering이 자주 일어남
+
+onClick={clickEventHandler} : clickEventHandler이라는 JS 함수 호출
+JavaScript = ECMAScript / 요새는 화살표함수 많이 쓴다고 한다.
+console.log("FOX2") 쓴 다음 F12 눌러서 console tab열고 확인
+let num = Math.random(); // 0이하의 랜덤 숫자 출력
+num = Math.floor(num); //소숫점 이하 버림
+이거 이용해서 데미지 계산 공식 넣을 수 있을지도? 범위 정할 수 있다면?
+
+
+
+============================================================================================================
+16:35
+src/App.js
+import './App.css';
+import Lab1 from './components/Lab1';
+import Lab2 from './components/Lab2';
+import Lab3 from './components/Lab3';
+import Lab4 from './components/Lab4';
+import Lab5 from './components/Lab5';
+import Lab6 from './components/Lab6';
+import Lab7 from './components/Lab7';
+import Lab8 from './components/Lab8';
+
+
+function App() {
+  return (
+    <div className="App">
+      <Lab1/>
+      <hr />
+      <Lab2/>
+      <hr />
+      <Lab3/>
+      <hr />
+      <Lab4/>
+      <hr />
+      <Lab5/>
+      <hr />
+      <Lab6/>
+      <hr />
+      <Lab7/>
+      <hr />
+      <Lab8/>
+
+    </div>
+  );
+}
+
+export default App;
+
+
+src/components/Lab1.js
+import React from 'react';
+
+function Lab1() {
+    return (
+        <div>
+            <h1>Lab1 - Element를 바로 출력</h1>
+            <ul>
+                <li> F-16 Fighting Falcon </li>
+                <li> F-15 Eagle </li>
+                <li> F-22 Raptor </li>
+            </ul>
+        </div>
+    );
+}
+
+export default Lab1;
+
+
+src/components/Lab2.js
+import React from 'react';
+
+function Lab2() {
+    //tag를 Array에 넣고, Array를 출력
+    const JetFighter = [<li>F-16 Fighting Falcon</li>, 
+    <li>F-15 Eagle</li>, 
+    <li>F-22 Raptor</li>]
+    return (
+        <div>
+            <h1>Lab2 - Array에 Element를 적용해서 Array Output</h1>
+            <ul>{JetFighter}</ul>
+        </div>
+    );
+}
+
+export default Lab2;
+
+
+
+
+
+============================================================================================================
+17:33
+
+src/components/Lab3.js
+import React from 'react';
+
+function Lab3() {
+    //배열 값만 적용된 상태
+    const JetFightersName = ['F-16 Fighting Falcon', 'F-15 Eagle', 'F-22 Raptor']
+
+    //배열만 선언
+    const JetFighters = [];
+
+    //for문 이용해서 Element 생성해서 JetFighters에 등록
+    for(let i = 0; i<JetFightersName.length; i++)
+    {
+        JetFighters.push(<li>{JetFightersName[i]}</li>);
+    }
+
+    return (
+        <div>
+            <h1>Lab3 - for문 이용해서 Output</h1>
+            <ul>
+                {JetFighters}
+            </ul>
+        </div>
+    );
+}
+
+export default Lab3;
+
+*각 element의 고유한 식별자(key)가 있어야 warning 안 뜬다.
+
+
+
+src/components/Lab4.js
+import React from 'react';
+
+function Lab4() {
+    
+    const JetFightersName = ['F-16 Fighting Falcon', 'F-15 Eagle', 'F-22 Raptor']
+    
+    //JetFightersName안에 있는 값들을 JetFighter라는 변수에 넣고 <li>에 넣은
+    //다음 JetFighters하는 배열안에 저장한다.
+    const JetFighters = JetFightersName.map( (JetFighter) => 
+    {
+        return <li>{JetFighter}</li>
+    });
+
+    return (
+        <div>
+            <h1>Lab4 - map()사용 - 앞으로 자주 사용함</h1>
+            <ul>
+                {JetFighters}
+            </ul>
+        </div>
+    );
+}
+
+export default Lab4;
+
+
+*Lab2,3,4에서 경고 발생 -> 배열의 element들에 key값이 없어서 warning 발생
+
+
+src/components/Lab5.js
+import React from 'react';
+
+function Lab5(props) {
+    const JetFightersName = ['F-16 Fighting Falcon', 'F-15 Eagle', 'F-22 Raptor']
+    
+    //배열 안에 값을 꺼내면서 고유번호(index) 할당
+    const JetFighters = JetFightersName.map( (JetFighter, index) => 
+    {
+        return <li key={index}> {JetFighter} </li>
+    });
+
+    return (
+        <div>
+            <h1>Lab5 - map()사용 - 고유key 생성하면서 출력</h1>
+            <ul>{JetFighters}</ul>
+        </div>
+    );
+}
+
+export default Lab5;
+
+
+src/components/Lab6.js
+import React from 'react';
+
+function Lab6() {
+    const JetFightersName = ['F-16 Fighting Falcon', 'F-15 Eagle', 'F-22 Raptor']
+
+
+    return (
+        <div>
+            <h1>Lab6 - JSX Block에서 바로 map으로 처리</h1>
+            <ul>
+                {
+                    JetFightersName.map( (JetFighter, index) => 
+                    {
+                        return <li key={index}>{JetFighter}</li>
+                    })
+                }
+            </ul>
+        </div>
+    );
+}
+
+export default Lab6;
