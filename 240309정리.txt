@@ -1,0 +1,794 @@
+09:32
+
+Strider, Cyclops, Spare, Mage, Golem, Osea, Erusia
+Trigger, Count, Wiseman, Lanza, Clown, SOL, Full Band, Champ, Tabloid, Knocker, Bandog,
+F-22 Raptor, F-15 Eagle, F-16 Fighting Falcon
+Grumman F-14 Tomcat, McDonnell Douglas F/A-18 Hornet, Boeing F/A-18E/F Super Hornet
+Sukhoi Su-27, Sukhoi Su-35, Sukhoi Su-57
+Eurofighter Typhoon
+Mikoyan MiG-29, Fairchild Republic A-10 Thunderbolt II
+X02S- Strike Wyvern
+ADF-11 DarkStar
+
+
+ACM, Air Combat Maneuvering. - PostStall / Cobra / PowerRoof maneuver
+
+Charge Assault / 444 / Battle of FarBanti / Light House / Dark Blue
+
+
+Air Superiority Fighter - F-15 Eagle, F-22 Raptor
+
+MultiRole Fighter - McDonnell Douglas F/A-18 Hornet, Boeing F/A-18E/F Super Hornet, Sukhoi Su-57
+
+multirole fighter & Air superiority fighter - Sukhoi Su-27, Sukhoi Su-35,  F-16 Fighting Falcon, Mikoyan MiG-29, Eurofighter Typhoon
+
+Interceptor & multirole fighter & Air superiority fighter - Grumman F-14 Tomcat
+
+Close air support attack aircraft - Fairchild Republic A-10 Thunderbolt II
+
+============================================================================================================
+10:30
+
+
+ToDoItem.js
+import React from 'react';
+import './ToDoItem.css';
+
+// props 6개 - State 4개(MOCKDate의 field값) + Event 2개
+// id, content, isDone, createDate -> Parent Component로부터 내려오는 State
+// onUpdate, onDelete -> Parent Component로 보내는 Event
+function ToDoItem({id, content, isDone, createDate, onUpdate, onDelete}) {
+
+    //onUpdate : ToDoItem에서 발생되는 Event - CheckBox 선택 & 해제
+    const onClickUpdate = () => 
+    {
+        onUpdate(id);
+
+    }
+
+
+    //onDelete : Button click하면 삭제 처리
+    const onClickDelete = () =>
+    {
+        onDelete(id);
+    }
+
+
+    return (
+        <div className="ToDoItem">
+            <div className="checkbox_col"><input type="checkbox" onChange={onClickUpdate} checked={isDone} /></div>
+
+            <div className="title_col">{content}</div>
+
+            <div className="date_col">{new Date(createDate).toLocaleDateString()}</div>
+
+            <div className="btn_col"><button onClick={onClickDelete}>삭제</button></div>
+        </div>
+    );
+}
+
+export default ToDoItem;
+
+
+
+ToDoItem.js에 css입히기
+ToDoItem.css
+.ToDoItem
+{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid red(240, 240, 240);
+}
+
+.ToDoItem .checkbox_col
+{
+    width: 20px;
+
+}
+
+.ToDoItem .title_col
+{
+    flex: 1;
+    
+}
+
+.ToDoItem .date_col
+{
+    font-size: 14px;
+    color : gray;
+    
+}
+
+.ToDoItem .btn_col button
+{
+    cursor: pointer;
+    color: gray;
+    font-size: 14px;
+    padding: 5px;
+}
+
+
+App.js에 CSS입히기
+App.css
+.App
+{
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto; /* margin: 0 auto; = 중앙정렬 */
+    border: 2px solid gray;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+
+ToDoEditor.js
+import React from 'react';
+import { useState, useRef } from 'react';
+import './ToDoEditor.css';
+
+
+//onCreate를 부모 Component로 전송
+function ToDoEditor({onCreate}) {
+
+    //useDate 사용 - 자주 사용
+    const [content, setContent] = useState(''); 
+    
+    //input box의 값 수정 시 호출
+    const onChangeContent = (e) => 
+    {
+        setContent(e.target.value);
+    }
+
+    //component 생성(mount) 이후에 초기값이 할당
+    const inputRef = useRef();
+
+
+    const onKeyDown = (e) =>
+    {
+        //Event로 Enter가 들어왔을 때(키보드에서 Enter치면)
+        if(e.keyCode === 13)
+        {
+            onSubmit();
+        }
+    }
+
+    //input value를 Parent Component에게 전달
+    const onSubmit = () => 
+    {
+        console.log("Transfer");
+        
+        //값 초기화 & Focus 위치를 해당 위치로 이동
+        if(!content)
+        {
+            inputRef.current.focus();
+            return;
+        }
+
+        //App(Parent Component)에게 onCreate()라는 props를 호출
+        onCreate(content);
+        setContent('');
+    }
+
+    //value={content} -> 자주 쓴다.
+
+    return (
+        <div className="ToDoEditor">
+            <h4>Aircraft</h4>
+            <div className="editor_wrapper">
+                <input ref={inputRef} value={content} onChange={onChangeContent} onKeyDown={onKeyDown} placeholder='새로운 할 일 작성'/>
+                <button onClick={onSubmit} //onSubmit = Event
+                >추가</button>
+            </div>
+        </div>
+    );
+}
+
+export default ToDoEditor;
+
+ToDoEditor.js에 CSS입히기
+ToDoEditor.css
+.ToDoEditor .editor_wrapper
+{
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+
+/*style 넣을 때, .ToDoEditor .intput 이런식으로 해줘야, 나중에 또 수정할 필요 없이 자동 적용된다.*/
+.ToDoEditor input
+{
+    flex: 1;
+    box-sizing: border-box;
+    border: 1px solid rgb(220, 220, 200);
+    border-radius: 5px;
+    padding: 15px;
+}
+
+/*입력칸 클릭시 파란색으로 변한다.*/
+.ToDoEditor input:focus
+{
+    outline: none;
+    border: 1px solid #1f93ff;
+
+}
+
+.ToDoEditor button
+{
+    cursor: pointer;
+    width: 80px;
+    border: none;
+    background-color: #1f93ff;
+    color: white;
+    border-radius: 5px;
+}
+
+
+
+
+
+ToDoList.js
+import React from 'react';
+import ToDoItem from './ToDoItem';
+import './ToDoList.css';
+
+
+//props 3개
+//App - ToDoList - ToDoItem
+//todo = object가 담긴 array : App에서 내려온 것
+//ToDoItem(Component)에 props를 전달하는 중이다.
+function ToDoList({todo, onUpdate, onDelete}) {
+    return (
+        <div className='ToDoList'>
+            <h4>Aircraft List 🛩✈🛫🛬</h4>
+            <div className='list_wrapper'>
+            {
+                todo.map( (it) => {
+
+                return <ToDoItem
+                //todo안에 담을 것들
+                id={it.id} 
+                content={it.content} 
+                isDone={it.isDone} 
+                createDate={it.createDate}
+
+                //Item에서 올라온 것들
+                onUpdate={onUpdate} 
+                onDelete={onDelete}
+                />
+            
+                })
+            }
+            </div>
+        </div>
+    );
+}
+
+export default ToDoList;
+
+
+
+ToDoList.js에 css입히기
+ToDoList.css
+.ToDoList .list_wrapper
+{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+
+객체(ToDoItem) 생성 기능 추가
+App.js
+import './App.css';
+import Header from './components/Header';
+import ToDoItem from './components/ToDoItem';
+import ToDoList from './components/ToDoList';
+import ToDoEditor from './components/ToDoEditor';
+import { useState, useRef } from 'react';
+
+
+
+function App() {
+
+  //MOCK 데이터(program test를 위해 임시 생성한 데이터)
+  //isDone = CheckBox
+  const MOCKData = 
+  [
+    {id : 0, isDone : false, content : "F-16 Fighting Falcon", createDate : new Date().getDate()}, 
+    {id : 1, isDone : true, content : "F-15 Eagle", createDate : new Date().getDate()}, 
+    {id : 2, isDone : false, content : "F-22 Raptor", createDate : new Date().getDate()}
+  ];
+
+  //할일에 대한 정보들 = Array안에 있는 object들
+  //setTodo - 기존 배열값 수정 -> State 다룬다.
+  const [todo, setTodo] = useState(MOCKData);
+
+
+  // useref = Rendering이후 임의의 새로운 unique value 생성
+  const idRef = useRef(3); //3번부터 자동 값 생성 시작
+
+  const onCreate = (content) => 
+  {
+    //하위 component로 event 받음 => onCreate props를 통해 전송
+    console.log("App Component에 값이 잘 전송됨");
+    console.log(content);
+
+    // 가져온 값(하위 Component의 event)을 setTodo배열 안에 앞에서부터 추가(객체 생성)
+    const newItem = 
+    {
+      id : idRef,
+      content : content,
+      isDone : false,
+      createDate : new Date().getTime()
+    }
+
+    //배열에 추가 - 기존 배열의 맨 앞에 추가
+    setTodo([newItem, ...todo]);
+    idRef.current +=1; //추가 후 +1 해서 다음 칸에 값 넣을 준비
+
+  }
+
+  const onUpdate = () => 
+  {
+    console.log("update func.")
+  }
+
+  const onDelete = () =>
+  {
+    console.log("delete func.")
+  }
+
+
+  return (
+    <div className="App">
+      <Header />
+      
+
+      <ToDoEditor 
+      onCreate={onCreate} //Child의 Event를 받는 props 받고 위에 명시한 onCreate함수 실행
+      />
+
+      <ToDoList 
+      todo = {todo} //Array State
+      onUpdate={onUpdate} onDelete={onDelete} //ToDoItem -> App -> ToDoList
+      />
+      
+      <ToDoItem  />
+
+    </div>
+  );
+}
+
+export default App;
+
+
+
+============================================================================================================
+11:42
+12:41
+
+update, delete 메소드 추가
+App.js
+import './App.css';
+import Header from './components/Header';
+import ToDoItem from './components/ToDoItem';
+import ToDoList from './components/ToDoList';
+import ToDoEditor from './components/ToDoEditor';
+import { useState, useRef } from 'react';
+
+
+
+function App() {
+
+  //MOCK 데이터(program test를 위해 임시 생성한 데이터)
+  //isDone = CheckBox
+  const MOCKData = 
+  [
+    {id : 0, isDone : false, content : "F-16 Fighting Falcon", createDate : new Date().getDate()}, 
+    {id : 1, isDone : true, content : "F-15 Eagle", createDate : new Date().getDate()}, 
+    {id : 2, isDone : false, content : "F-22 Raptor", createDate : new Date().getDate()}
+  ];
+
+  //Date().getDate() : UNIX시간(1970.1.1) 생성
+  //Date().getTime() : 현재 System의 시간 생성
+
+  //할일에 대한 정보들 = Array안에 있는 object들
+  //setTodo - 기존 배열값 수정 -> State 다룬다.
+  //State는 바뀌면 바로 Rendering된다.
+  const [todo, setTodo] = useState(MOCKData);
+
+
+  // useRef = Rendering이후 임의의 새로운 unique value 생성
+  const idRef = useRef(3); //3번부터 자동 값 생성 시작
+
+  // content 추가
+  const onCreate = (content) => 
+  {
+    //하위 component로 event 받음 => onCreate props를 통해 전송
+    console.log("App Component에 값이 잘 전송됨");
+    console.log(content);
+
+    // 가져온 값(하위 Component의 event)을 setTodo배열 안에 앞에서부터 추가(객체 생성)
+    // idRef -> idRef.current
+    const newItem = 
+    {
+      id : idRef.current,
+      // content : content <=> content 축약형 가능 = ES6에서 새로 추가된 문법 - 객체의 field이름 = variable의 이름 일 때, 사용 가능
+      content,
+      isDone : false,
+      createDate : new Date().getTime()
+    }
+
+    //배열에 추가 - 기존 배열(todo)의 맨 앞(...)에 추가
+    setTodo([newItem, ...todo]);
+    idRef.current +=1; //추가 후 +1 해서 다음 칸에 값 넣을 준비
+
+  }
+
+  
+  const onUpdate = (targetId) => 
+  {
+    console.log("update func.");
+    console.log(targetId);
+
+    // id값 찾아서 isDone 상태보고 True -> False / False -> True
+    setTodo ( 
+      todo.map( (it) => 
+        it.id === targetId ? {...it, isDone : !it.isDone} : it
+      )
+    )
+
+  }
+
+  //it.id field의 값이 targetId field의 내용과 가티 않은 것만 새로운 배열에 담는다? = 삭제
+  const onDelete = (targetId) =>
+  {
+    console.log("delete func.");
+    console.log(targetId);
+
+    setTodo
+    (
+      todo.filter((it)=>
+      
+        it.id !== targetId
+      )
+    );
+  }
+
+
+  return (
+    <div className="App">
+      <Header />
+      
+
+      <ToDoEditor 
+      onCreate={onCreate} //Child의 Event를 받는 props 받고 위에 명시한 onCreate함수 실행
+      />
+
+      <ToDoList 
+      todo = {todo} //Array State
+      onUpdate={onUpdate} onDelete={onDelete} //ToDoItem -> App -> ToDoList
+      />
+      
+      <ToDoItem  />
+
+    </div>
+  );
+}
+
+export default App;
+
+
+
+============================================================================================================
+14:32
+
+ToDoList.css
+.ToDoList .list_wrapper
+{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+.ToDoList .SearchBar
+{
+    width: 100%;
+    margin-bottom: 20px;
+    border: none;
+    border-bottom: 1px solid rgb(220,220,200);
+    box-sizing: border-box;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+
+.ToDoList .SearchBar:focus
+{
+    outline: none;
+    border-bottom: 1px solid #1f93ff;
+}
+
+
+
+//검색 기능 추가
+ToDoList.js
+import React from 'react';
+import ToDoItem from './ToDoItem';
+import './ToDoList.css';
+import { useState } from 'react';
+
+
+//props 3개
+//App - ToDoList - ToDoItem
+//todo = object가 담긴 array : App에서 내려온 것
+//ToDoItem(Component)에 props를 전달하는 중이다.
+function ToDoList({todo, onUpdate, onDelete}) {
+
+    //검색기능 추가
+    const [search, setSearch] = useState('');
+    const onChangeSearch = (e) => 
+    {
+        setSearch(e.target.value);
+    }
+
+    return (
+        <div className='ToDoList'>
+            <h4>Aircraft List 🛩✈🛫🛬</h4>
+
+            {/*검색기능추가 - 자주 쓰게될 input Box형태*/}
+            <input
+                value={search}
+                onChange={onChangeSearch}
+                className='SearchBar'
+                placeholder='검색어 입력'
+            />
+
+
+            <div className='list_wrapper'>
+            {
+                todo.map( (it) => {
+
+                return <ToDoItem
+                //todo안에 담을 것들
+                id={it.id} 
+                content={it.content} 
+                isDone={it.isDone} 
+                createDate={it.createDate}
+
+                //Item에서 올라온 것들
+                onUpdate={onUpdate} 
+                onDelete={onDelete}
+                />
+            
+                })
+            }
+            </div>
+        </div>
+    );
+}
+
+export default ToDoList;
+
+
+검색어 처리 함수 - rodo.filter() \ 배열의 값 
+
+
+============================================================================================================
+15:35
+
+ToDoList.js
+// import React from 'react';
+import ToDoItem from './ToDoItem';
+import './ToDoList.css';
+import { useState } from 'react';
+
+
+//props 3개
+//App - ToDoList - ToDoItem
+//todo = object가 담긴 array : App에서 내려온 것
+//ToDoItem(Component)에 props를 전달하는 중이다.
+function ToDoList({todo, onUpdate, onDelete}) {
+
+    //검색기능 추가
+    const [search, setSearch] = useState('');
+
+    const onChangeSearch = (e) => 
+    {
+        setSearch(e.target.value);
+    }
+
+    //검색어처리함수 - todo.filter() == array값을 filter해서 새로운 배열에 저장
+    //todo안의 object를 it로 꺼낸 다음 배열로 return
+    const getSearchResult = () =>
+    {
+        return search==="" ? todo : todo.filter( (it) => 
+        
+            it.content.toLowerCase().includes(search.toLocaleLowerCase())
+        );
+    }
+
+
+    return (
+        <div className='ToDoList'>
+            <h4>Aircraft List 🛩✈🛫🛬</h4>
+
+            {/*검색기능추가 - 자주 쓰게될 input Box형태*/}
+            <input
+                value={search}
+                onChange={onChangeSearch}
+                className='SearchBar'
+                placeholder='검색어 입력'
+            />
+
+
+            <div className='list_wrapper'>
+            {
+                
+                // todo.map( (it) => {
+
+                // return <ToDoItem
+                // //todo안에 담을 것들
+                // key={it.id}
+                // id={it.id} 
+                // content={it.content} 
+                // isDone={it.isDone} 
+                // createDate={it.createDate}
+
+                // //Item에서 올라온 것들
+                // onUpdate={onUpdate} 
+                // onDelete={onDelete}
+                // />
+            
+                // })
+            }
+
+            {/*검색어 사용해서 처리*/}
+
+            {
+                getSearchResult().map( (it) => 
+                
+                    <ToDoItem
+                    key={it.id}
+                    id={it.id}
+                    content={it.content}
+                    isDone={it.isDone}
+                    onUpdate={onUpdate}
+                    onDelete={onDelete}
+                    />
+                )
+            }
+            </div>
+        </div>
+    );
+}
+
+export default ToDoList;
+
+
+============================================================================================================
+16:10
+
+props, method, object, setter, event, state - 주로 사용하는 것들
+일기 쓰기 파일 만들기 - reduce, context, 라우터, hooks, pages(component들의 묶음)
+components, hooks, img, pages
+
+UseState.js
+import React from 'react';
+import { useState } from 'react';
+
+function UseState(props) {
+
+    //useState() : State(Dynamic Data) 자동 rendering
+    //props를 사용해서 Parent Component -> Child Component 방향으로 Rendering
+    //여러 Event에 대한 함수를 매번 만들어야함 = code 양↑ -> 줄이기 위해서 사용하는 게 useReducer
+    
+    //useState delclare
+    const [count, setCount] = useState(0);
+
+    //각각의 Event에 대해서 함수 호출 후 기존의 count에 값을 수정 후 setCount에 값 넣기
+    // Event多 = code 수↑
+    const add1 = () => 
+    {
+        setCount(count+1);
+    }
+
+    const add10 = () => 
+    {
+        setCount(count+10);
+    }
+
+    const add100 = () => 
+    {
+        setCount(count+100);
+    }
+
+    const add1000 = () => 
+    {
+        setCount(count+1000);
+    }
+
+    return (
+        <div>
+            <div><h1>{count}</h1></div>        
+            <button onClick={add1}>+1</button>
+            <button onClick={add10}>+10</button>
+            <button onClick={add100}>+100</button>
+            <button onClick={add1000}>+1000</button>
+        </div>
+    );
+}
+
+export default UseState;
+
+============================================================================================================
+17:40
+
+useReducer() : 
+- useState를 대체할 수 있는 Hook, 상태 수정되면 자동으로 Rendering됨
+- Component 내부의 Logic을 Component 외부로 분리 가능 => 최적화
+- Component code 최적화
+- 관리해야 할 State가 1개 이상의 복수일 때(복잡해지고 관리해야 할 Event가 많은 경우) 사용
+- Enterprise 환경에서 적합
+
+Component types = class(Complex Syntax), function(Easy Syntax)
+Hook = Class-type Component의 지원하는 기능을 Function-type component에서 구현할 수 있도록 민든 것
+
+dispatch = set - 함수 작동
+
+UseReducer.js
+import React from 'react';
+import { useReducer } from 'react';
+
+
+//외부에 정의
+const reducer = (count1, action) =>
+{
+    switch(action.type)
+    {
+        case 1 : 
+         return count1 +1;
+        
+        case 10 : 
+            return count1 +10;
+        
+        case 100 : 
+            return count1 +100;
+        
+        case 1000 : 
+            return count1 +1000;
+        
+        default : 
+            return count1;
+
+    }
+}
+
+
+
+function UseReducer(props) {
+
+    //dedlare useReducer() / dispatch = setter
+    const[count1, dispatch] = useReducer(reducer, 0);
+
+    return (
+        <div>
+
+            <div><h1>{count1}</h1></div>
+            <button onClick = { () => dispatch({type:1})}>+1</button>
+            <button onClick = { () => dispatch({type:10})}>+10</button>
+            <button onClick = { () => dispatch({type:100})}>+100</button>
+            <button onClick = { () => dispatch({type:1000})}>+1000</button>
+        </div>
+    );
+}
+
+export default UseReducer;
+
+
