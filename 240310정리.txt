@@ -1,0 +1,639 @@
+09:35
+
+Strider, Cyclops, Spare, Mage, Golem, Osea, Erusia
+Trigger, Count, Wiseman, Lanza, Clown, SOL, Full Band, Champ, Tabloid, Knocker, Bandog,
+F-22 Raptor, F-15 Eagle, F-16 Fighting Falcon
+Grumman F-14 Tomcat, McDonnell Douglas F/A-18 Hornet, Boeing F/A-18E/F Super Hornet
+Sukhoi Su-27, Sukhoi Su-35, Sukhoi Su-57
+Eurofighter Typhoon
+Mikoyan MiG-29, Fairchild Republic A-10 Thunderbolt II
+X02S- Strike Wyvern
+ADF-11, DarkStar
+
+
+ACM, Air Combat Maneuvering. - PostStall / Cobra / PowerRoof maneuver
+
+Charge Assault / 444 / Battle of FarBanti / Light House / Dark Blue
+
+
+Air Superiority Fighter - F-15 Eagle, F-22 Raptor
+
+MultiRole Fighter - McDonnell Douglas F/A-18 Hornet, Boeing F/A-18E/F Super Hornet, Sukhoi Su-57
+
+multirole fighter & Air superiority fighter - Sukhoi Su-27, Sukhoi Su-35,  F-16 Fighting Falcon, Mikoyan MiG-29, Eurofighter Typhoon
+
+Interceptor & multirole fighter & Air superiority fighter - Grumman F-14 Tomcat
+
+Close air support attack aircraft - Fairchild Republic A-10 Thunderbolt II
+
+
+
+dispatch -> action -> case -> return
+
+Router(기능) - 화면 전환
+
+React Router
+기존에 페이지 이동시 사용한 태그  - anchor tag = <a href="URL주소">
+그런데 React = SPA(SinglePageApplication) = 화면의 Page를 이동하도록 한다.
+SPA에서 화면 전환(다른 화면으로 이동) = Router를 통해서 진행 - Library필요 - React-Router or React-Router-Dom
+React-Router : 모바일 App / React-Router-Dom : Web App
+command : npm install react-router-dom / yarn add react-router-dom
+
+
+
+
+============================================================================================================
+10:36
+
+package.json -> 설치된 Library가 등록된다.
+"react-router-dom": "^6.22.3", -? v6.22 기준으로 윗 버전, 아랫버전이 셋팅 구문 자체가 달라졌다.
+
+Routing(기능) = 어떤 요청에 대해서 component 이동
+
+Router Setting
+1. index.js에서 BrowserRouter를 사용하기 위해 <App />을 감싸는 구문 추가
+index.js -> 전체 페이지에서 router 사용하기 위해 구문 추가
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from 'react-router-dom';  //추가된 구문
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <BrowserRouter> {/*추가된 구문*/}
+      <App />
+    </BrowserRouter> {/*추가된 구문*/}
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
+2. 페이지 component 생성 및 Groupping
+http://localhost:3010/
+http://localhost:3010/about
+http://localhost:3010/company
+http://localhost:3010/gallery
+src/pages/ Home.js, Gallery.js, Company.js, About.js 생성
+
+
+3. App.js에 import
+import './App.css';
+import Home from './pages/Home'; //추가된 구문
+import About from './pages/About'; //추가된 구문
+import Company from './pages/Company'; //추가된 구문
+import Gallery from './pages/Gallery'; //추가된 구문
+import { Routes, Route, Link } from 'react-router-dom'; //추가된 구문
+
+
+function App() {
+
+
+
+  return (
+    <div className="App">
+      <h1>React Router</h1>
+      <hr />
+
+
+      {/* Routing 호출 */}
+      <nav></nav>
+
+
+      {/* Routing 처리 */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route> {/* Routing 처리 - <Home />을 선택하면 URL : 'http:localhost:3010/'으로 Route(페이지 전환) */}
+        <Route path="/about" element={<About />}></Route> {/* Routing 처리 - <About />을 선택하면 URL : 'http:localhost:3010/about'으로 Route(페이지 전환) */}
+        <Route path="/company" element={<Company />}></Route> {/* Routing 처리 - <Company />을 선택하면 URL : 'http:localhost:3010/company'으로 Route(페이지 전환) */}
+        <Route path="/gallery" element={<Gallery />}></Route> {/* Routing 처리 - <Gallery />을 선택하면 URL : 'http:localhost:3010/gallery'으로 Route(페이지 전환) */}
+      </Routes>
+
+    </div>
+  );
+}
+
+export default App;
+
+
+============================================================================================================
+11:31
+
+Routes Component(<Routes></Routes>) = Controller(in SpringBoot)
+- Route에서 setting한 Component 처리 -> BrowserRouter -> App
+- Route Component에서 요청하는 정보에 대해서 이동할 Component setting
+
+Route Component(<Route></Route>) = Link가 호출한 path확인 후 해당하는 Component 처리 /
+Link = Routing호출 = 요청 정보 전송
+Link ->  Routes -> Route -> Routes -> BrowserRoute
+
+App.js
+import './App.css';
+import Home from './pages/Home';
+import About from './pages/About';
+import Company from './pages/Company';
+import Gallery from './pages/Gallery';
+import { Routes, Route, Link } from 'react-router-dom';
+
+
+function App() {
+
+
+
+  return (
+    <div className="App">
+      <h1>React Router</h1>
+      <hr />
+
+      {/* Routing 호출 */}
+      <nav>
+        <ul>
+          <li><Link to = "/">Home</Link></li> {/* Routing 처리 - /요청 시 Home Component 호출 */}
+          <li><Link to = "/about">About</Link></li> {/* Routing 처리 - /about요청 시 About Component 호출 */}
+          <li><Link to = "/company">Company</Link></li> {/* Routing 처리 - /company요청 시 Company Component 호출 */}
+          <li><Link to = "/gallery">Gallery</Link></li> {/* Routing 처리 - /gallery요청 시 Gallery Component 호출 */}
+          
+        </ul>
+      </nav>
+
+
+      {/* Routing 처리 */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/company" element={<Company />}></Route>
+        <Route path="/gallery" element={<Gallery />}></Route>
+      </Routes>
+
+    </div>
+  );
+}
+
+export default App;
+
+react-roter-dom v6 - 신기능 3가지
+1. path variable(URL로 들어오는 변수값) 사용 가능 - "edit/:id" : : 요청주소/:path , useParams이용 / : = 변수임을 의미하는 기호
+
+2. Query String 사용 가능 - "/edit?id=1&mode=abc" : 요청주소?Query String -> 링크 걸 때, 변수값 던져준다., useSearchParams이용
+
+3. Page Moving : Event 발생 시 특정 Page 이동 : useNavigate 사용
+- javascript : location.href "index.html" 등 MPA에서 사용
+- Route를 호출(Route에게 요청을 보냄)
+- 버튼 클릭시 특정 page로 이동 : useNavigate
+- 함수 내부에서 함수 처리 후 특정 page로 이동 : useNavigate이용
+- 전전 페이지로 이동 : navigate(-2)
+- 전 페이지로 이동 : navigate(-1)
+- 다음 페이지로 이동 : navigate(1)
+
+
+http://localhost:3010/edit/id -> edit으로 요청하고, id라는 변수의 값을 받는다
+useParams -> URL Path로 넘어오는 변수의 값을 받는 Hook / react-route-dom v6이상이어야만 가져올 수 있다.
+
+Edit.js
+import React from 'react';
+import { useParams } from 'react-router-dom'; // useParams(Hook)를 사용하기 위해 추가
+
+
+function Edit(props) {
+
+    const {id} = useParams(); // useParams(Hook)을 통해 넘어온 변수 값을 저장
+
+    return (
+        <div>
+            <h1>수정페이지 </h1>
+            <hr />
+            <p>오신 것을 환영합니다.</p>
+            
+            <p>useParams로 넘어오는 변수 값 출력</p>
+            <h1>{id}</h1> {/* 넘어온 id 출력 */}
+
+        </div>
+    );
+}
+
+export default Edit;
+
+App.js
+import './App.css';
+import Home from './pages/Home';
+import About from './pages/About';
+import Company from './pages/Company';
+import Gallery from './pages/Gallery';
+import { Routes, Route, Link } from 'react-router-dom';
+import Edit from './pages/Edit'; // 추가된 Syntax - edit page import
+
+
+function App() {
+
+
+
+  return (
+    <div className="App">
+      <h1>React Router</h1>
+      <hr />
+
+      {/* Routing 호출 */}
+      <nav>
+        <ul>
+          <li><Link to = "/">Home</Link></li>
+          <li><Link to = "/about">About</Link></li>
+          <li><Link to = "/company">Company</Link></li>
+          <li><Link to = "/gallery">Gallery</Link></li>
+          <li><Link to = "/edit/100">Edit</Link></li> {/* 추가된 Syntax - edit page로 이동 시 100이라는 변수 값 같이 전송 */}
+          
+        </ul>
+      </nav>
+
+
+      {/* Routing 처리 */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/company" element={<Company />}></Route>
+        <Route path="/gallery" element={<Gallery />}></Route>
+        <Route path="/edit/:id" element={<Edit />}></Route> {/* 추가된 Syntax - edit page로 이동 시 변수 id 같이 전송 */}
+      </Routes>
+
+    </div>
+  );
+}
+
+export default App;
+
+============================================================================================================
+12:31
+
+path variable은 따로 변수 선언을 해야하지만, Query String은 그냥 넘겨도 된다.
+
+
+http://localhost:3010/edit2?id=200&mode=abc
+QueryString 이용한 예제 - URL?변수=값&변수=값&변수=값&변수=값&변수=값... : useSearchParams(Hook) - 넘어오는 모든 변수&값 다 처리하는 역할 / v6이상에서만 가능
+
+Edit2 Component 호출 : http://localhost:3010/edit2
+searchParams : ?id=200&mode=abc : ?이후 넘어오는 값들(Query String) 다 gathering해서 변수에 할당
+
+
+
+Edit2.js
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
+
+
+function Edit2(props) {
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const id = searchParams.get("id");
+    const mode = searchParams.get("mode");
+
+    return (
+        <div>
+            <h1>Edit2 Component : Query String</h1>
+            <p>오신 것을 환영합니다.</p>
+
+            <h1>Query String으로 넘어오는 id : {id}</h1>
+            <h1>Query String으로 넘어오는 mode : {mode}</h1>
+            <h1>Query String으로 넘어오는 Output : {searchParams}</h1>
+        </div>
+    );
+}
+
+
+
+export default Edit2;
+
+
+
+
+App.js
+import './App.css';
+import Home from './pages/Home';
+import About from './pages/About';
+import Company from './pages/Company';
+import Gallery from './pages/Gallery';
+import { Routes, Route, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Edit from './pages/Edit';
+import Edit2 from './pages/Edit2';
+
+
+
+function App() {
+
+  const navigate = useNavigate(); //navigate Hook을 사용할 객체 선언
+
+  return (
+    <div className="App">
+      <h1>React Router</h1>
+      <hr />
+
+      {/* Routing 호출 */}
+      <nav>
+        <ul>
+          <li><Link to = "/">Home</Link></li>
+          <li><Link to = "/about">About</Link></li>
+          <li><Link to = "/company">Company</Link></li>
+          <li><Link to = "/gallery">Gallery</Link></li>
+          <li><Link to = "/edit/100">Edit</Link></li>
+          <li><Link to = "/edit2?id=200&mode=abc">Edit2</Link></li>
+          <li><button onClick={()=>{navigate("/")}}>홈으로 이동</button></li>
+          <li><button onClick={()=>{navigate("/company")}}>회사 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/about")}}>상세 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/gallery")}}>갤러리 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/edit")}}>수정 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/edit2")}}>수정2 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(-1)}}>전 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(-2)}}>전전 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(1)}}>다음 페이지로 이동</button></li>
+          
+        </ul>
+      </nav>
+
+
+      {/* Routing 처리 */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/company" element={<Company />}></Route>
+        <Route path="/gallery" element={<Gallery />}></Route>
+        <Route path="/edit/:id" element={<Edit />}></Route>
+        <Route path="/edit2" element={<Edit2 />}></Route>
+      </Routes>
+
+    </div>
+  );
+}
+
+export default App;
+
+
+
+============================================================================================================
+14:32
+
+anchor 태그 - 페이지 전체 렌더링(MPA) <-> React Router - 페이지 변한 부분만 렌더링(SPA)
+모든 Component가 <BrowserRouter></BrowserRouter>안에 있어야 한다. - <App>도 얘로 감싸야 한다.(index.js에서)
+<Routes>안에는 Component만 존재
+element = props다.
+
+useEffect 
+- Hook
+- useEffect(Function, [deps])
+- 의존성배열(deps = dependency array)의 값이 변경될 때, 함수가 작동한다.
+- 작동상태 3가지
+  1. deps의 인자 값이 오지 않는 경우 = mount(Component가 생성됨, 호출됨, rendering됨)시 호출 : Rendering될 때마다 작동 / useEffect(Function) = 2nd인자가 없는 경우
+  2. deps의 인자 값이 []적용된 경우 = Component가 Rendering될 때 1번만 작동 / useEffect(Function, []) = 2nd인자가 빈채로 선언된 경우
+  3. deps의 인자 값이 [count, name]인 경우 = count, name이 변경될 때, 작동 / useEffect(Function, [count, name]) = = 2nd인자가 있는 경우 - Function이 작동됨, update
+  
+
+
+
+============================================================================================================
+15:35
+
+useEffect = 함수를 작동시키는 것 3가지 방법 / 자주 사용된다.
+
+useEffect.js
+
+import React, { useState } from 'react';
+import { useEffect } from 'react';
+
+
+function UseEffect(props) {
+
+    
+    useEffect(()=>{console.log("mount시 작동")});
+    
+    useEffect(()=>{console.log("1번만 실행")}, []);
+    
+    const [count, setCount] = useState(0);
+    const [name, setName] = useState("");
+
+    useEffect
+    (
+        ()=>{console.log("count, name 상태 변경되면 작동")}, // 2. 얘 호출 된다.
+        [count, name] // 1. [count, name]얘 수정되면 = 함수가 작동하면
+    )
+
+    const countChange = () => 
+    {
+        setCount(count+1);
+    }
+
+    const nameChange = () =>
+    {
+        setName("F-16 Fighting Falcon");
+    }
+
+    return (
+        <div>
+            <h1>useEffect 예제 : 작동방법 3가지</h1>
+            <hr />
+            <h1>count : {count}</h1>
+            <h1>name : {name}</h1>
+            <hr />
+            <button onClick={countChange}>count 수정</button>
+            <button onClick={nameChange}>name 수정</button>
+        </div>
+    );
+}
+
+export default UseEffect;
+
+
+
+App.js
+
+import './App.css';
+import Home from './pages/Home';
+import About from './pages/About';
+import Company from './pages/Company';
+import Gallery from './pages/Gallery';
+import { Routes, Route, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Edit from './pages/Edit';
+import Edit2 from './pages/Edit2';
+import UseEffect from './pages/UseEffect';
+
+
+
+function App() {
+
+  const navigate = useNavigate(); //navigate Hook을 사용할 객체 선언
+
+  return (
+    <div className="App">
+      <h1>React Router</h1>
+      <hr />
+
+      {/* Routing 호출 */}
+      <nav>
+        <ul>
+          <li><Link to = "/">Home</Link></li>
+          <li><Link to = "/about">About</Link></li>
+          <li><Link to = "/company">Company</Link></li>
+          <li><Link to = "/gallery">Gallery</Link></li>
+          <li><Link to = "/edit/100">Edit</Link></li>
+          <li><Link to = "/edit2?id=200&mode=abc">Edit2</Link></li>
+          <li><button onClick={()=>{navigate("/")}}>홈으로 이동</button></li>
+          <li><button onClick={()=>{navigate("/company")}}>회사 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/about")}}>상세 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/gallery")}}>갤러리 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/edit")}}>수정 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/edit2")}}>수정2 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(-1)}}>전 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(-2)}}>전전 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(1)}}>다음 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/useEffect")}}>useEffect 호출</button></li>
+          
+        </ul>
+      </nav>
+
+
+      {/* Routing 처리 */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/company" element={<Company />}></Route>
+        <Route path="/gallery" element={<Gallery />}></Route>
+        <Route path="/edit/:id" element={<Edit />}></Route>
+        <Route path="/edit2" element={<Edit2 />}></Route>
+        <Route path="/useEffect" element={<UseEffect />}></Route>
+      </Routes>
+
+    </div>
+  );
+}
+
+export default App;
+
+
+<React.StrictMode> -> React 쓰다 보면 2번 작동 되는 경우가 존재하는 데 얘 때문이다.
+
+============================================================================================================
+16:33
+
+확장자 : .js, .jsx 둘 중 하나 사용해도 상관 없다.
+rsf - 함수형 component로 만든 것
+화살표 함수 이용해서 component생성
+
+Footer.js
+import React from 'react';
+
+const Footer = () => 
+{
+    return <div>
+        <hr />
+        <h1>Footer블락입니다.</h1>
+    </div>;
+}
+
+export default Footer;
+
+
+
+
+NotFoundPage.jsx
+import { Link, useNavigate } from "react-router-dom";
+
+const NotFoundPage = () => 
+{
+    //Event나 함수 작동 후 이동할 페이지 처리 : location.href = "index.html" = MPA
+    // 요청(/company) ==> Component 작동(Route path ="/company" element = {<Company />})
+    const navigate = useNavigate();
+
+    return <div>
+        <h1>404 Not Found</h1>
+        <h3><Link to = "/"> Home </Link></h3>
+        <button onClick={navigate('/company')}>Company</button>
+    </div>;
+}
+
+export default NotFoundPage;
+
+
+
+App.js
+
+import './App.css';
+import Home from './pages/Home';
+import About from './pages/About';
+import Company from './pages/Company';
+import Gallery from './pages/Gallery';
+import { Routes, Route, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Edit from './pages/Edit';
+import Edit2 from './pages/Edit2';
+import UseEffect from './pages/UseEffect';
+import Footer from './pages/Footer';
+import NotFoundPage from './pages/NotFoundPage';
+
+
+function App() {
+
+  const navigate = useNavigate(); //navigate Hook을 사용할 객체 선언
+
+  return (
+    <div className="App">
+      <h1>React Router</h1>
+      <hr />
+
+      {/* Routing 호출 */}
+      <nav>
+        <ul>
+          <li><Link to = "/">Home</Link></li>
+          <li><Link to = "/about">About</Link></li>
+          <li><Link to = "/company">Company</Link></li>
+          <li><Link to = "/gallery">Gallery</Link></li>
+          <li><Link to = "/edit/100">Edit</Link></li>
+          <li><Link to = "/edit2?id=200&mode=abc">Edit2</Link></li>
+          <li><button onClick={()=>{navigate("/")}}>홈으로 이동</button></li>
+          <li><button onClick={()=>{navigate("/company")}}>회사 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/about")}}>상세 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/gallery")}}>갤러리 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/edit")}}>수정 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/edit2")}}>수정2 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(-1)}}>전 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(-2)}}>전전 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate(1)}}>다음 페이지로 이동</button></li>
+          <li><button onClick={()=>{navigate("/useEffect")}}>useEffect 호출</button></li>
+          
+        </ul>
+      </nav>
+
+
+      {/* Routing 처리 */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/about" element={<About />}></Route>
+        <Route path="/company" element={<Company />}></Route>
+        <Route path="/gallery" element={<Gallery />}></Route>
+        <Route path="/edit/:id" element={<Edit />}></Route>
+        <Route path="/edit2" element={<Edit2 />}></Route>
+        <Route path="/useEffect" element={<UseEffect />}></Route>
+        <Route path="*" element={<NotFoundPage />}></Route> {/* 추가된 Syntax - 위에 명시한 페이지 제외 다른 페이지들은 전부 여기로 */}
+      </Routes>
+    <Footer />
+    </div>
+  );
+}
+
+export default App;
+
+============================================================================================================
+17:33
+
+diary proj
+yarn add react-router-dom
+package.json -> dependency 확인
+index.js -> BrowserRouter component로 감싸기 = 모든 페이지에서 라우팅 처리할 수 있도록 
+
+routing 처리 Library import - Routes, Route, useNavigate, Link
+Routes, Route - Controller역할 : Request : View(Component와 연결
+Link, useNavigate : Request 보내는 역할
+
+
