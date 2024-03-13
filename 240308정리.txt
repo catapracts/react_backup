@@ -1,31 +1,5 @@
 09:34
 
-Strider, Cyclops, Spare, Mage, Golem, Osea, Erusia
-Trigger, Count, Wiseman, Lanza, Clown, SOL, Full Band, Champ, Tabloid, Knocker, Bandog,
-F-22 Raptor, F-15 Eagle, F-16 Fighting Falcon
-Grumman F-14 Tomcat, McDonnell Douglas F/A-18 Hornet, Boeing F/A-18E/F Super Hornet
-Sukhoi Su-27, Sukhoi Su-35, Sukhoi Su-57
-Eurofighter Typhoon
-Mikoyan MiG-29, Fairchild Republic A-10 Thunderbolt II
-X02S- Strike Wyvern
-ADF-11 DarkStar
-
-
-ACM, Air Combat Maneuvering. - PostStall / Cobra / PowerRoof maneuver
-
-Charge Assault / 444 / Battle of FarBanti / Light House / Dark Blue
-
-
-Air Superiority Fighter - F-15 Eagle, F-22 Raptor
-
-MultiRole Fighter - McDonnell Douglas F/A-18 Hornet, Boeing F/A-18E/F Super Hornet, Sukhoi Su-57
-
-multirole fighter & Air superiority fighter - Sukhoi Su-27, Sukhoi Su-35,  F-16 Fighting Falcon, Mikoyan MiG-29, Eurofighter Typhoon
-
-Interceptor & multirole fighter & Air superiority fighter - Grumman F-14 Tomcat
-
-Close air support attack aircraft - Fairchild Republic A-10 Thunderbolt II
-
 JSX = component
 
 move.js = component ?

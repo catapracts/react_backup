@@ -1,0 +1,379 @@
+09:35
+
+Button.js 
+
+- 전체 페이지에서 사용하는 component
+
+- Button이라는 component는 text, type, onclick이라는 props 3개 받는다
+
+- text(prop) : 취소하기, 새글쓰기,  왼쪽으로 가기. 오른쪽으로 가기, 수정하기
+
+- type(prop) : positive, negative, default
+
+- const btnType = ["positive", "negative"].includes(type) ? type : "default"; 
+= btnType이라는 변수 선언 후 배열 안에 type이 있는지 확인(include(type))하는데, type 중에 positive와 negative 둘 중 하나가 있다면, 
+둘 중 하나가 들어온 type을 return하고 그게 아니면 default를 return한다.
+
+- ``(백틱) : 연결 연산자 없이 문자열 내부에 변수를 출력한다.
+(ex)`오늘의 날씨는 ${today}습니다.` -> 문자열과 연결
+
+- className={["Button", `Button_${btnType}`].join(" ")} onClick={onClick}>
+= className에서 2가지 처리 / className = tag에 속성입힐 때 사용
+Button = String / Button.css에서 명시한 Button 전체 공용 디자인
+Button_${btnType} = Button.css에서 명시한 각 type에 따른 css디자인 내용
+.join(" ") = 배열안의 내용ㅇ들을 출력하는데, 공백을 기준으로 나눠서 출력하는 method / 구분하는 건 바꿀 수 있다.
+onClick이라는 Event를 동작시킨다.
+
+- Component의 prop값이 없는 경우 기본값 setting : Component이름.defaultProps = { prop이름 : 값, ...}
+Button.defaultProps = {   type : "default" }
+
+============================================================================================================
+10:40
+
+Home.js
+- root page / 시작 페이지
+
+ButtonTest.js
+- 버튼 잘 작동되는지 테스트하기 위해 만든 component
+- <div> <Button text = "기본버튼" type="default"></Button> </div>
+text prop을 통해 버튼 이름 지정
+type prop을 통해 positive, negative, default 구분
+- import Button from '../components/Button';
+../components/Button <=>/src/components/Button이므로 Button.js기준으로 위위 폴더가 최상위니까 ..쓴것
+
+
+util.js
+- 자주 사용하는 함수를 정의하기 위한 파일 / 소문자로 시작
+- 정의해 놓은 함수를 외부에서 사용하려면 export 필요
+export const getEmotionImgById = (emotionId) => 
+{
+}
+- import emotion1 from './img/emotion1.png'; = import img태그의 src에 넣을 이름 from '이미지 파일 위치';
+import emotion1 from './img/emotion1.png';
+import emotion2 from './img/emotion2.png';
+import emotion3 from './img/emotion3.png';
+import emotion4 from './img/emotion4.png';
+import emotion5 from './img/emotion5.png';
+
+- export = 1(js파일) : N(함수) / import {함수} from 'component파일 경로'
+- export default = 1개만 설정 / import 함수이름 from 'component파일 경로'
+
+- image의 id값을 받아서 해당 image return하는 함수 생성 -> 이 때 id가 String or Number이므로 String으로 변환하기
+*React에서 image 사용하려면 해당 image가 import되어야 함
+const targetEmotionID = String(emotionId);
+switch(targetEmotionID)
+{
+  case "1" : return emotion1;
+  case "2" : return emotion2;
+  case "3" : return emotion3;
+  case "4" : return emotion4;
+  case "5" : return emotion5;
+  default : return null;
+}
+
+
+
+============================================================================================================
+11:35
+
+ImgTest.js : 이미지 잘 나오는지 확인하기 위해 test
+ButtonTest.js : util.js이용해서 이미지 출력 확인 
+
+App.js에 mockData생성
+mockData = 테스트용 데이터
+react = component base -> SPA의 가장 큰 문제 : ★Component 사이 변수 전달 문제★
+-> 변수 전달 쉽게 해주는 Library - context, Redux, Mobx = 상태관리 -> component사이 연결 설정 안 해도 중간에서 바로 특정 값 전송 가능
+context(React에 내장)사용
+0. React import하기 - import React from 'react';
+1. context 생성 : const 변수이름  = React.createContext() - State, Event 처리
+
+export const DiaryStateContext = React.createContext(); //State 전송 context
+export const DiaryDispatchContext = React.createContext(); //Event 처리 context, State변경 by Dispatch
+
+
+2. context provider 사용 - component 묶기 => state 내려보내기 + Event 받아오기
+3. useContext 사용 - State 가져와서 사용
+4. useReducer 사용 - context의 State 변경
+context - 가장 쉽고, 중규모에서 사용
+props drilling = prop끼리 연결
+
+
+============================================================================================================
+12:39
+
+2. context provider 사용 - component 묶기 => state 내려보내기 + Event 받아오기
+import React, {useReducer, useEffect} from 'react';
+
+//Reducer함수 정의
+function reducer(state, action)
+{
+  switch(action.type)
+  {
+    case "INIT" : return action.data;
+    case "CREATE" : return [action.data, ...state];
+    //case "UPDATE" : return action.data;
+    //case "DELETE" : return action.data;
+  }
+}
+
+
+function App() {
+//State 처리하는 변수
+// setter -> dispatch -> reducer함수 호출 -> reducer함수(action -> 함수 내용에서 Logic처리 -> state) -> data
+const [data, dispatch] = useReducer(reducer, []);
+
+*{} = object
+//useEffect(함수(인자1), 데이터(인자2)) - component load될 때, 1번만 실행
+//Component 처음 load시 초기값 넣기
+// dispatch호출 -> reducer함수 실행 -> mockData집어넣기
+useEffect( () => {dispatch({type: "INIT", data : mockData});} ,[]);
+
+
+return (
+    // State를 처리할 하위 Component Groupping
+    <DiaryStateContext.Provider value={data}> -> State 처리를 위한 변수 
+    <DiaryDispatchContext.Provider value={{onCreate, onUpdate, onDelete}}> -> 처리할 하위 Event Groupping
+
+     ...
+
+    </DiaryDispatchContext.Provider>
+    </DiaryStateContext.Provider>
+);
+}
+
+정리
+
+처음 구동 시작
+①useEffect( () => {dispatch({type: "INIT", data : mockData});} ,[]);
+②const [data, dispatch] = useReducer(reducer, []);
+③function reducer(state, action)
+④switch(action.type)
+⑤const [data, dispatch] = useReducer(reducer, []);
+⑥<DiaryStateContext.Provider value={data}>
+
+이후(하위 Component에서 Event 발생 시)
+①<DiaryDispatchContext.Provider value={{onCreate, onUpdate, onDelete}}>
+②const [data, dispatch] = useReducer(reducer, []);
+③function reducer(state, action)
+④switch(action.type)
+⑤const [data, dispatch] = useReducer(reducer, []);
+⑥<DiaryStateContext.Provider value={data}>
+
+이렇게 구성 시 장점 - Component사이 props따로 설정할 필요 없이 바로 처리됨
+
+
+3. useContext 사용 - State 가져와서 사용
+4. useReducer 사용 - context의 State 변경
+
+
+
+============================================================================================================
+14:32
+
+개발 방식 2가지
+1. Component 다 만들고 개발 / 
+2. 레이아웃 만들고 개발 - App.js에서 레이아웃 그리고 시작
+*버튼 통해 이동 - navigate
+
+State관리
+prop - component사이 data이동시 사용
+
+Header & Footer = Common Component
+
+/components/Header.js -> /, /new, /diary, /edit 요청 시 공통으로 사용하는 Component
+import React from 'react';
+import './Header.css';
+
+function Header({title, leftChild, rightChild}) {
+    return (
+        <div className="Header">
+            <div className="header_left">{leftChild}</div>
+            <div className="header_title">{title}</div>
+            <div className="header_right">{rightChild}</div>
+        </div>
+    );
+}
+
+export default Header;
+
+
+
+
+Home.js
+import React from 'react';
+import Button from '../components/Button';
+import Header from '../components/Header';
+
+function Home(props) {
+    return (
+        <div>
+            <Header 
+            title="240313" 
+            leftChild={<Button text={"<"} type="default" onClick={()=>{console.log("왼쪽 버튼 클릭")}}/>} 
+            rightChild={<Button text={">"} type="default" onClick={()=>{console.log("오른쪽 버튼 클릭")}}/>}/>
+        </div>
+    );
+}
+
+export default Home;
+
+
+============================================================================================================
+15:34
+
+/pages/New.js - 일기 새로 생성 시 사용하는 Componenets
+
+import React from 'react';
+import Header from '../components/Header';
+import Button from '../components/Button';
+
+function New(props) {
+    return (
+        <div>
+            <Header 
+            title="새 일기 쓰기" 
+            leftChild={<Button text=" < 뒤로가기" 
+            type="positive" 
+            onClick={()=>{console.log("뒤로가기")}}/>}/>
+
+        </div>
+    );
+}
+
+export default New;
+
+/pages/Edit.js - 일기 수정 시 사용하는 Componenets
+
+import React from 'react';
+import Header from '../components/Header';
+import Button from '../components/Button';
+
+function Edit(props) {
+    return (
+        <div>
+            <Header 
+            title="일기 수정" 
+            leftChild={<Button text=" < 뒤로가기" 
+            type="negative" 
+            onClick={()=>{console.log("뒤로가기")}}/>}
+
+            
+            rightChild={<Button text="삭제하기" 
+            type="negative" 
+            onClick={()=>{console.log("삭제하기")}}/>}
+            />
+        </div>
+    );
+}
+
+export default Edit;
+
+
+/pages/Diary.js - 일기 내용 상세 확인 시 사용하는 Componenets
+
+import React from 'react';
+import Header from '../components/Header';
+import Button from '../components/Button';
+
+
+function Diary(props) {
+    return (
+        <div>
+            <Header 
+            title="240313 상세내용" 
+            leftChild={<Button text=" < 뒤로가기" 
+            type="negative" 
+            onClick={()=>{console.log("뒤로가기")}}/>}
+
+            
+            rightChild={<Button text="수정하기" 
+            type="positive" 
+            onClick={()=>{console.log("수정하기")}}/>}
+
+
+            />
+        </div>
+    );
+}
+
+export default Diary;
+
+
+1개의 Component가지고 계속 던지면서 서로 다른 결과물 낼 수 있다 = 재사용성 = 최고 장점
+
+*값 던질 때 - prop이름={}
+
+/components/DiaryList.js -> 일기 전체 목록 / 작성한 뒤 Home.js에 Header밑에 import
+import React from 'react';
+import './DiaryList.css';
+import Button from './Button';
+
+function DiaryList(props) {
+    return (
+        <div className="DiaryList">
+
+            <div className="menu_wrapper">
+                <div className="left_col">
+                    <select>
+                        <option value="newer">최신순</option>
+                        <option value="older">오래된순</option>
+                    </select>
+                </div>
+
+                <div className="right_col">
+                    <Button text={"새 글쓰기"} type={"positive"} onClick={()=>{console.log("새 글쓰기")}}/>
+                </div>
+
+            </div>
+
+            <div className="list_wrapper"></div>
+
+        </div>
+    );
+}
+
+export default DiaryList;
+
+============================================================================================================
+16:31
+
+App.js -> Prop 없이 바로 쓸 수 있다.
+
+/components/DiaryList.js
+/components/DiaryItem.js
+/pages/Home.js
+App.js
+
+{...it} = 객체 자체
+
+DiaryList.js
+data.map((it) => {<DiaryItem key={it.id} {...it}} />) 이렇게 하면 안 되고,
+data.map((it) => <DiaryItem key={it.id} {...it} />) 이렇게 하니까 된다.
+
+
+============================================================================================================
+17:33
+
+Home.js 
+- 이 안에 DiaryList & Button Component 배치
+- 여기에서 배열 값을 정렬해줘야 한다.
+
+Button.js 
+- onClick Event = Button의 Event 정의(함수 작동)
+- 3개 prop 존재 - text, type, onClick
+
+utils.js 
+- Component아님 / 대문자로 시작X
+- export시켜서 다른 component에서 가져다 쓸 수 있도록 함
+
+DiaryItem.js
+- DiaryList에서 받아온 객체들 표시
+
+App.js
+- <DiaryStateContext.Provider value={data}> 이 안에 있는 모든 component는 App에 있는 내용을 부르는 게 가능
+
+DiaryList.js
+- map을 통해 배열안의 객체들을 전부 꺼낸다. key값 사용해야 한다.
+
+
+
