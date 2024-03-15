@@ -11,30 +11,522 @@ import './EmotionItem.css';-> import './Editor.css';로 변경해서 오류 해�
 EmotionItem.js에서 CSS속성 잘 못 입힘
 `EmotionItem_${id}`  -> `EmotionItem_on_${id}`로 변경해서 오류 해결됨
 
-============================================================================================================
-10:35
+JSON형식은 ["필드이름" : "필드 값"] 이렇다
+
+New.js
+import React, { useContext } from 'react';
+import Header from '../components/Header';
+import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
+import {DiaryDispatchContext} from '../App';
+import Editor from '../components/Editor';
+
+function New(props) {
+
+    const navigate = useNavigate();
+
+    const {onCreate} = useContext(DiaryDispatchContext);
+
+    const onSubmit = (data) => 
+    {
+        console.log("글쓰기 호출됨");
+
+        const {date, content, emotionId} = data;
+        onCreate(date, content, emotionId);
+
+
+        navigate('/', {replace: true});
+    }
+
+    return (
+        <div>
+            <Header 
+            title="새 일기 쓰기" 
+            leftChild={<Button text=" < 뒤로가기" 
+            type="positive" 
+            onClick={()=>{navigate(-1)}}/>}/>
+
+            <Editor onSubmit={onSubmit}/>
+        </div>
+
+    );
+}
+
+export default New;
+
+
+EmotionItem.js
+import React from 'react';
+import './EmotionItem.css';
+
+// 새 일기쓰기에서 emotionList의 배열의 객체 5개 출력
+function EmotionItem({id, name, img, onClick, isSelected}) {
+
+    // 5개 중 1개 선택되면 처리 시작
+    const handleOnClick = () => 
+    {
+        onClick(id);
+    }
+
+    return (
+        //image 5개
+        <div 
+        className={["EmotionItem", isSelected ? `EmotionItem_on_${id}` : 'EmotionItem_off'].join(" ")}
+        onClick={handleOnClick}
+        >
+            
+            {/* 오늘의 감정 선택 시 선택되면서 배경색이랑 같이 적용됨 */}
+            <img alt={`emotion${id}`} src = {img} />
+            <span>{name}</span>
+
+        </div>
+    );
+}
+
+export default EmotionItem;
+
+
+Editor.js
+import React from 'react';
+import './Editor.css';
+import {emotionList} from '../util';
+import EmotionItem from './EmotionItem';
+import Button from './Button';
+import { useNavigate } from 'react-router-dom';
+
+
+//글 생성, 수정
+function Editor() {
+
+    //취소하기 버튼에서 사용
+    const navigate = useNavigate();
+
+
+    const handleChangeEmotion = () => 
+    {
+        console.log("Editor : handleChangeEmotion")
+    }
+    
+    const handleChangeContent = () =>
+    {
+        console.log("Editor : handleChangeContent")
+    }
+
+    const handleSubmit = () =>
+    {
+        console.log("Editor : handleSubmit")
+    }
+
+
+    return (
+        <div className="Editor">
+            <h4>오늘의 날짜</h4>
+            <div className="input_wrapper"> 
+                <input type="date"/>
+            </div>
+
+            <div className="editor_section">
+                <h4>오늘의 감정</h4>
+                <div className="input_wrapper emotion_list_wrapper">
+                    {
+                        emotionList.map((it) => <EmotionItem key={it.id} {...it} onClick={handleChangeEmotion} isSelected={true}/>
+                    )}
+                </div>
+            </div>
+
+            {/*textarea 글 쓰는 Block*/}
+            <div className="editor_section">
+                <h4>오늘의 일기</h4>
+                <div className="input_wrapper">
+                    <textarea placeholder='오늘은 하루는 어땠나요?' value={"State로 처리할 내용"} onChange={handleChangeContent}  />
+                </div>
+            </div>
+
+            {/*취소하기, 작성완료 버튼 Block   */}
+            <div className="editor_section bottom_section">
+                {/* replace:true = 뒤로가기 방지 */}
+                <Button text={"취소하기"} type="negative" onClick={()=>{navigate('/',{replace:true})}}/>
+                <Button text={"작성완료"} type="positive" onClick={handleSubmit}/>
+            </div>
+        </div>
+    );
+}
+
+export default Editor;
+
 
 ============================================================================================================
-11:39
+10:42
+
+배열안에 객체 넣어서 작동 / 여기서 State = 객체 형태로 설정
+
+Editor.js
+import React, { useState } from 'react';
+import './Editor.css';
+import {emotionList, getFormattedDate} from '../util'; //함수 만든거 불러오기
+import EmotionItem from './EmotionItem';
+import Button from './Button';
+import { useNavigate } from 'react-router-dom';
+
+
+
+
+function Editor() {
+
+    const navigate = useNavigate();
+
+    //글 쓴 내용 전체 담는 State - String, Number, Object, Array, Boolean 등 넣는 것 가능 / 안 넣으면 undefined로 시작
+    //기존 State를 onSubmit으로 전송
+    // State는 각각 만들어도 되고, 
+    const [state, setState] = useState({
+        date : getFormattedDate(new Date()), 
+        emotionId : 3, 
+        content : " ",
+    });
+
+
+    const handleChangeEmotion = () => 
+    {
+        console.log("Editor : handleChangeEmotion")
+    }
+    
+    //textarea의 값이 변경되면 작동되는 함수
+    const handleChangeContent = () =>
+    {
+        console.log("Editor : handleChangeContent")
+    }
+
+    const handleSubmit = () =>
+    {
+        console.log("Editor : handleSubmit")
+    }
+
+
+    // setter를 통해 날짜 선택시 수정되는 method = 기존의 state값을 수정
+    const handleChangeDate = (e) =>
+    {
+        setState(
+            {...state, date:e.target.value});
+    }
+
+    return (
+        <div className="Editor">
+            <h4>오늘의 날짜</h4>
+            <div className="input_wrapper">
+                {/*DB에서 가져온 시간형식이랑 여기서 사용하는 시간형식이랑 맞춰야한다 - util.js에 명시 */}
+                <input type="date" value={state.date}
+                    onChange={handleChangeDate}
+                />
+            </div>
+
+            <div className="editor_section">
+                <h4>오늘의 감정</h4>
+                <div className="input_wrapper emotion_list_wrapper">
+                    {
+                        emotionList.map((it) => <EmotionItem key={it.id} {...it} onClick={handleChangeEmotion} isSelected={true}/>
+                    )}
+                </div>
+            </div>
+
+            
+            <div className="editor_section">
+                <h4>오늘의 일기</h4>
+                <div className="input_wrapper">
+                    <textarea placeholder='오늘은 하루는 어땠나요?' value={"State로 처리할 내용"} onChange={handleChangeContent}  />
+                </div>
+            </div>
+
+            
+            <div className="editor_section bottom_section">
+                
+                <Button text={"취소하기"} type="negative" onClick={()=>{navigate('/',{replace:true})}}/>
+                <Button text={"작성완료"} type="positive" onClick={handleSubmit}/>
+            </div>
+        </div>
+    );
+}
+
+export default Editor;
+
+
+
+
+util.js
+
+import emotion1 from './img/emotion1.png';
+import emotion2 from './img/emotion2.png';
+import emotion3 from './img/emotion3.png';
+import emotion4 from './img/emotion4.png';
+import emotion5 from './img/emotion5.png';
+
+export const getEmotionImgById = (emotionId) => 
+{
+    const targetEmotionID = String(emotionId);
+
+    switch(targetEmotionID)
+    {
+        case "1" : return emotion1;
+        case "2" : return emotion2;
+        case "3" : return emotion3;
+        case "4" : return emotion4;
+        case "5" : return emotion5;
+        default : return null;
+    }
+}
+
+
+export const emotionList = [
+    {id: 1, name: "완전 좋음", img: getEmotionImgById(1)},
+    {id: 2, name: "좋음", img: getEmotionImgById(2)},
+    {id: 3, name: "보통", img: getEmotionImgById(3)},
+    {id: 4, name: "나쁨", img: getEmotionImgById(4)},
+    {id: 5, name: "완전 나쁨", img: getEmotionImgById(5)},
+];
+
+
+// 날짜 input 받아서 'yyyy-MM-dd'형식으로  return해주는 함수
+export const getFormattedDate = (targetDate) => 
+{
+    //targetDate에서 연도만 가져오기 : yyyy
+    let year = targetDate.getFullYear();
+    //targetDate에서 월만 가져오기 - +1해줘야 한다.(0부터 시작하기 때문) : MM
+    let month = targetDate.getMonth()+1;
+    //targetDate에서 일만 가져오기 : dd
+    let day = targetDate.getDate();
+
+    //조건 사용해서 10월 미만일 때, 0X월 이런 식으로 만들기
+    if(month<10)
+    {
+        month = `0${month}`;
+    }
+
+    //조건 사용해서 10일 미만일 때, 0X일 이런 식으로 만들기
+    if(day<10)
+    {
+        day = `0${day}`;
+    }
+
+    //반환형태 설정
+    return `${year}-${month}-${day}`;
+}
+
+============================================================================================================
+11:44
+
+Editor.js
+
+import React, { useState } from 'react';
+import './Editor.css';
+import {emotionList, getFormattedDate} from '../util';
+import EmotionItem from './EmotionItem';
+import Button from './Button';
+import { useNavigate } from 'react-router-dom';
+
+
+//Editor.js - onSubmit = 생성 & 수정 용도
+
+
+
+function Editor({initData, onSubmit}) {
+
+    const navigate = useNavigate();
+
+    const [state, setState] = useState({
+        date : getFormattedDate(new Date()), 
+        emotionId : 3, 
+        content : " ",
+    });
+
+
+    //선택한 emotion의 번호를 받아서 state의 emotionId 필드의 값 수정
+    // e = 선택한 emotion의 key값 -> map()으로 key값 찾는과정 거쳐서 return / 기본 3번(보통) = 위에 useState에서 emotionId:3
+    const handleChangeEmotion = (e) => 
+    {
+        setState({...state, emotionId:e});
+    }
+    
+    const handleChangeContent = (e) =>
+    {
+        setState({...state, content:e.target.value});
+    }
+
+
+    // 기존의 State의 값을 호출하는 Component로 전송 by prop
+    // onSubmit 상위 Component로 전달해주는 역할
+    // 전달받은 사우이 Component는 이제 처리시작?
+    const handleSubmit = () =>
+    {
+        onSubmit(state);
+    }
+
+    const handleChangeDate = (e) =>
+    {
+        setState(
+            {...state, date:e.target.value}); // 기존에 있는 state에서 Event로 들어오는 새로운 State를 setState에 저장
+    }
+
+    return (
+        <div className="Editor">
+            <h4>오늘의 날짜</h4>
+            <div className="input_wrapper">
+
+                <input type="date" value={state.date}
+                    onChange={handleChangeDate}
+                />
+            </div>
+
+            <div className="editor_section">
+                <h4>오늘의 감정</h4>
+                {/* 선택하면 배경색 들어오면서 선택되는 것 */}
+                <div className="input_wrapper emotion_list_wrapper">
+                    {
+                        emotionList.map((it) => ( //it = emotionList, it.id = emotionList의 객체
+                        <EmotionItem key={it.id} {...it} 
+                        onClick={handleChangeEmotion} 
+                        isSelected={state.emotionId===it.id} //
+                        />
+                    ))}
+                </div>
+            </div>
+
+            
+            <div className="editor_section">
+                <h4>오늘의 일기</h4>
+                <div className="input_wrapper">
+                    <textarea placeholder='오늘 하루는 어땠나요?' value={state.content} onChange={handleChangeContent}  />
+                </div>
+            </div>
+
+            
+            <div className="editor_section bottom_section">
+                
+                <Button text={"취소하기"} type="negative" onClick={()=>{navigate('/',{replace:true})}}/>
+                <Button text={"작성완료"} type="positive" onClick={handleSubmit}/>
+            </div>
+        </div>
+    );
+}
+
+export default Editor;
 
 
 ============================================================================================================
-12:33
+12:31
+
+SPA = Component안에 Component 안에 Component안에 Component 안에 Component안에 Component 안에 Component안에 Component 이런식이라서
+Component 사이 State 전달이 가장 골칫거리다. - 그래서 Context 같은거 사용한다
+
+하위 Component : Editor.js(onSubmit = prop)
+상위 Component : Edit.js & New.js
+
+App.js
+
+import './App.css';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import Header from './include/Header';
+import Footer from './include/Footer';
+import Home from './pages/Home';
+import New from './pages/New';
+import Diary from './pages/Diary';
+import Edit from './pages/Edit';
+import ButtonTest from './test/ButtonTest';
+import ImgTest from './test/ImgTest';
+import React, {useReducer, useEffect, useRef} from 'react';
 
 
-============================================================================================================
-14:31
-
-
-============================================================================================================
-15:44
-
-
-============================================================================================================
-16:36
+const mockData = [
+  {id:"0", date:new Date().getTime()-1, content:"mock1", emotionId:1},
+  {id:"1", date:new Date().getTime()-2, content:"mock2", emotionId:2},
+  {id:"2", date:new Date().getTime()-3, content:"mock3", emotionId:3}
+];
 
 
 
-============================================================================================================
-17:33
+
+
+export const DiaryStateContext = React.createContext();
+export const DiaryDispatchContext = React.createContext();
+
+
+function reducer(state, action)
+{
+  switch(action.type)
+  {
+    case "INIT" : return action.data;
+    case "CREATE" : return [action.data, ...state];
+    //case "UPDATE" : return action.data;
+    //case "DELETE" : return action.data;
+  }
+}
+
+
+function App() {
+
+  const [data, dispatch] = useReducer(reducer, []);
+  
+  //useRef(Hook) 사용해서 고유 value 생성 후 id(mockData의 id)에 적용
+  const idRef = useRef(3); // 새로 생성시 4번부터 시작
+
+
+  useEffect( () => {dispatch({type: "INIT", data : mockData});} ,[]);
+
+
+  // 하위 Component에서 요청한 Event 처리하는 함수들
+// date : yyyy-mm-dd : TimeStamp형식의 날짜로 변환
+const onCreate = (date, content, emotionId) => 
+{
+  dispatch({
+    type: "CREATE",
+    data: 
+    {
+      id: idRef.current++, 
+      date: new Date(date).getTime(), 
+      content:content,
+       emotionId: emotionId}
+  });
+}
+
+const onUpdate = () => {}
+const onDelete = () => {}
+
+  return (
+    <DiaryStateContext.Provider value={data}>
+      <DiaryDispatchContext.Provider value={{onCreate, onUpdate, onDelete}}>
+
+
+    <div className="App">
+      <h1>Diary App</h1>
+ 
+      <Header />
+      <hr />
+      <p /><p /><p /><p />
+
+        <Routes>
+          <Route path="/" element={<Home />}></Route>
+          <Route path="/new" element={<New />}></Route>
+          <Route path="/diary/:id" element={<Diary />}></Route>
+          <Route path="/edit/:id" element={<Edit />}></Route>
+
+
+          <Route path="/btnTest" element={<ButtonTest />}></Route>
+          <Route path="/imgTest" element={<ImgTest />}></Route>
+        </Routes>
+
+      <p /><p /><p /><p />
+      <hr />
+      <Footer />
+      
+    </div>
+
+
+
+    </DiaryDispatchContext.Provider>
+    </DiaryStateContext.Provider>
+  );
+}
+
+export default App;
+
+
+
 
