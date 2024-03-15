@@ -1,26 +1,70 @@
-import React from 'react';
+import React, {useState, useContext, useEffect} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {DiaryStateContext} from '../App';
 import Header from '../components/Header';
 import Button from '../components/Button';
+import Viewer from '../components/Viewer';
+
 
 
 function Diary(props) {
-    return (
-        <div>
-            <Header 
-            title="240313 상세내용" 
-            leftChild={<Button text=" < 뒤로가기" 
-            type="negative" 
-            onClick={()=>{console.log("뒤로가기")}}/>}
 
-            
-            rightChild={<Button text="수정하기" 
-            type="positive" 
-            onClick={()=>{console.log("수정하기")}}/>}
+    const {id} = useParams();
 
+    const data = useContext(DiaryStateContext);
 
-            />
-        </div>
+    const  [diary, setDiary] = useState();
+
+    useEffect
+    (
+        ()=>{const matchDiary = data.find((it)=> String(it.id) === String(id));
+        
+            if(!matchDiary)
+            {
+                alert("해당 일기가 존재하지 않습니다. 초기 페이지로 이동합니다.");
+                navigate("/", {replace: true})
+            }
+
+            else
+            {
+                setDiary(matchDiary);
+            }
+        }
+        , [id, data]
     );
+
+    const navigate = useNavigate();
+
+
+        
+        if(!diary)
+        {
+            return <div>현재 값이 로딩중입니다.</div>
+        }
+    
+        
+        else
+        {
+            const {content, emotionId, date} = diary;
+        
+
+            return (
+            <div>
+                <Header 
+                title = {`${id}글의 상세내용`}
+                leftChild={<Button text=" < 뒤로가기" 
+                type="negative"
+                onClick={()=>{navigate(-1)}}/>}
+
+                rightChild={<Button text="수정하기" 
+                type="positive" 
+                onClick={()=>{navigate(`/edit/${id}`)}}/>}
+                />
+
+                <Viewer {...diary} />
+            </div>
+            );
+        }
 }
 
 export default Diary;

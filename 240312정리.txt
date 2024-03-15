@@ -1,0 +1,1245 @@
+09:35
+
+정리 - 각 Component의 동작
+
+App.js
+- <DiaryStateContext.Provider value={data}> 이 안에 있는 모든 component는 App에 있는 내용을 부르는 게 가능
+
+
+import './App.css';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import Header from './include/Header';
+import Footer from './include/Footer';
+import Home from './pages/Home';
+import New from './pages/New';
+import Diary from './pages/Diary';
+import Edit from './pages/Edit';
+import ButtonTest from './test/ButtonTest';
+import ImgTest from './test/ImgTest';
+import React, {useReducer, useEffect} from 'react';
+
+
+const mockData = [
+  {id:"mock1", date:new Date().getTime()-1, content:"mock1", emotionId:1},
+  {id:"mock2", date:new Date().getTime()-2, content:"mock2", emotionId:2},
+  {id:"mock3", date:new Date().getTime()-3, content:"mock3", emotionId:3}
+];
+
+
+const onCreate = () => {}
+const onUpdate = () => {}
+const onDelete = () => {}
+
+
+export const DiaryStateContext = React.createContext();
+export const DiaryDispatchContext = React.createContext();
+
+
+function reducer(state, action)
+{
+  switch(action.type)
+  {
+    case "INIT" : return action.data;
+    case "CREATE" : return [action.data, ...state];
+    //case "UPDATE" : return action.data;
+    //case "DELETE" : return action.data;
+  }
+}
+
+
+function App() {
+
+  const [data, dispatch] = useReducer(reducer, []);
+  
+  useEffect( () => {dispatch({type: "INIT", data : mockData});} ,[]);
+
+  return (
+    <DiaryStateContext.Provider value={data}>
+      <DiaryDispatchContext.Provider value={{onCreate, onUpdate, onDelete}}>
+
+
+    <div className="App">
+      <h1>Diary App</h1>
+ 
+      <Header />
+      <hr />
+      <p /><p /><p /><p />
+
+        <Routes>
+          <Route path="/" element={<Home />}></Route>
+          <Route path="/new" element={<New />}></Route>
+          <Route path="/diary/:id" element={<Diary />}></Route>
+          <Route path="/edit/:id" element={<Edit />}></Route>
+
+
+          <Route path="/btnTest" element={<ButtonTest />}></Route>
+          <Route path="/imgTest" element={<ImgTest />}></Route>
+        </Routes>
+
+      <p /><p /><p /><p />
+      <hr />
+      <Footer />
+      
+    </div>
+
+
+
+    </DiaryDispatchContext.Provider>
+    </DiaryStateContext.Provider>
+  );
+}
+
+export default App;
+
+
+처음 구동 시작
+①useEffect( () => {dispatch({type: "INIT", data : mockData});} ,[]);
+
+useEffect로 초기 데이터 설정(type: "INIT", data : mockData) 후 dispatch method로 처리
+
+②const [data, dispatch] = useReducer(reducer, []);
+
+dispatch method를 처리하기 위해 useReducer를 이용해서 refucer function 작동 + data는 useEffect에서 가져온 것 그대로 이동
+
+③function reducer(state, action)
+
+reducer function을 처리하기 위해 action method작동
+action안에 dispatch를 통해 들어온 data와 type이 들어온다.
+
+④switch(action.type)
+
+action안에 있는 type을 보고 대응하는 값을 return한다.(return action.data)(여기에서는 INIT)
+그리고 이 action.fata를 state안에 넣고 dispatch method가 실행되었던 곳으로 return한다.
+
+⑤const [data, dispatch] = useReducer(reducer, []);
+data에 reducer함수를 통해 들어온 data를 넣는다. 그리고 하위 Component로 Rendering시키기 위해
+<DiaryStateContext.Provider value={data}>로 보낸다
+
+⑥<DiaryStateContext.Provider value={data}>
+받은 data를 import된 하위 component들에게 전달한다.
+
+
+
+이후(하위 Component에서 Event 발생 시 - 자동으로 진행 = 자동 Rendering)
+①<DiaryDispatchContext.Provider value={{onCreate, onUpdate, onDelete}}>
+하위 Component에서 Event(여기에서는 onCreate, onUpdate, onDelete) 발생 시
+발생한 Event를 value에 받아서 해당하는 method로 전달한다.
+
+②const onCreate, onUpdate, onDelete = () => {} : 
+해당하는 method로 이동해서 처리하고 dispatch로 전달한다.
+
+③const [data, dispatch] = useReducer(reducer, []);
+method 처리 결과를 dispatch로 받은 결과들을 reducer함수로 전달
+
+④function reducer(state, action)
+reducer function을 처리하기 위해 action method작동
+action안에 dispatch를 통해 들어온 data와 type이 들어온다.
+
+⑤switch(action.type)
+action안에 있는 type을 보고 대응하는 값을 return한다.
+그리고 이 action.data를 state안에 넣고 dispatch method가 실행되었던 곳으로 return한다.
+
+⑥const [data, dispatch] = useReducer(reducer, []);
+data에 reducer함수를 통해 들어온 data를 넣는다. 그리고 하위 Component로 Rendering시키기 위해
+<DiaryStateContext.Provider value={data}>로 보낸다
+
+⑦<DiaryStateContext.Provider value={data}>
+받은 data를 import된 하위 component들에게 전달한다.
+
+
+
+
+*DiaryStateContext.provider -> 이걸로 전체 Component를 묶었기 때문에, child-child사이 data이동이 간단해졌다.
+**DiaryDispatchContext.provider -> 이걸로 전체 Component를 묶었기 때문에, child에서 Event발생 시 child-child사이  prop이동이 간단해졌다.
+***reducer = 큰 사이트에서 사용
+****useState, useReducer = State변화 시 자동 Rendering시키는 Hook들
+useState - code 복잡해진다.
+*****useEffect = 함수가 배열(의존성 배열)을 의존한다. = 배열 안에 값(State)이 바뀌면 함수가 작동한다. / 배열안에 아무 값도 안 넣을 경우 한 번만 진행
+
+Home.js 
+- 이 안에 DiaryList & Button Component 배치
+- 여기에서 배열 값을 정렬해줘야 한다.
+- Button, useContext, DiaryList, DiaryStateContext를 import한 상태
+
+
+import React, { useContext } from 'react';
+import Button from '../components/Button';
+import Header from '../components/Header';
+import DiaryList from '../components/DiaryList';
+import {DiaryStateContext} from '../App';
+
+function Home(props) {
+
+    // Context Provider에서 내려보내주는 상태 값을 불러온다 = useContext from App.js
+    // MOCKData안에 있는 객체 3개를 data로 내려보낸다.
+    // DiaryStateContext가 export되어있어야 사용 가능
+    // useContext나 useReucer사용하면 child component
+    const data = useContext(DiaryStateContext);
+
+
+    return (
+        <div>
+            <Header 
+            title="240313" 
+            leftChild={<Button text={"<"} type="positive" onClick={()=>{console.log("왼쪽 버튼 클릭")}}/>} 
+            rightChild={<Button text={">"} type="negative" onClick={()=>{console.log("오른쪽 버튼 클릭")}}/>}
+            />
+
+            <DiaryList data={data}/>
+        </div>
+        
+    );
+}
+
+export default Home;
+
+*Parent(App.js) - Child(Home.js)
+
+
+동작순서
+①const data = useContext(DiaryStateContext); = App.js에 있는 Context Provider에서 내려보낸 상태를 받는다.
+
+②
+<Header title="240313" leftChild={<Button text={"<"} type="positive" onClick={()=>{console.log("왼쪽 버튼 클릭")}}/>} 
+rightChild={<Button text={">"} type="negative" onClick={()=>{console.log("오른쪽 버튼 클릭")}}/>} />
+
+= Button.js 불러와서 Button의 prop들을 이용해서 재사용
+
+<DiaryList data={data}/>
+
+= DiaryList.js의 data에 App.js로부터 받은 상태들을 전달 = child-child전달인데? 안 된다고 하지 않았나?
+
+
+
+
+
+Button.js 
+- onClick Event = Button의 Event 정의(함수 작동)
+- 3개 prop 존재 - text, type, onClick
+- Button.css를 import한 상태
+
+import React from 'react';
+import './Button.css'
+
+function Button({text, type, onClick}) {
+
+    const btnType = ["positive", "negative"].includes(type) ? type : "default";
+
+    return (
+        <button className={["Button", `Button_${btnType}`].join(" ")} 
+        onClick={onClick}>
+            {text}
+        </button>
+    );
+}
+
+Button.defaultProps = 
+{
+    type : "default"
+}
+
+export default Button;
+
+
+
+동작순서
+①function Button({text, type, onClick}) = Button을 import한 다른 component로부터 data를 받아옴
+
+②const btnType = ["positive", "negative"].includes(type) ? type : "default";
+= btnType이라는 변수에 다른 component로부터 받아온 data의 type을 확인해서 "positive" 또는 "negative"면 "positive" 또는 "negative"를 저장하고
+아무런 data가 없거나 "positive" 또는 "negative"가 아니면 default라는 값을 저장한다.
+
+③<button className={["Button", `Button_${btnType}`].join(" ")} onClick={onClick}> {text} </button>
+= Button을 생성하는데 Button.css를 적용하기 위해 className을 사용한다. 그리고 "positive" 또는 "negative"에 따라 css가 다르므로
+.join method를 이용해 공백(" ")으로 구분하여 css속성을 2개 적용한다. 
++ onClick Event를 추가하여 button을 누르면 Event로 처리함을 명시한다
++ 생성한 Button에 text를 적용하기 위해 {text} 사용
+
+
+④
+Button.defaultProps = { type : "default"}
+= Button의 prop 중 type에 default라는 값이 들어가 있는 경우에는 defaultProps로 처리한다.
+*defaultProps = 변수? prop?
+
+⑤export default Button; = Button을 import한 다른 component가 사용가능하도록 export를 명시
+
+
+
+
+utils.js 
+- Component아님 / 대문자로 시작X
+- export시켜서 다른 component에서 가져다 쓸 수 있도록 함
+- emotion1,2,3,4,5.png를 import한 상태
+
+import emotion1 from './img/emotion1.png';
+import emotion2 from './img/emotion2.png';
+import emotion3 from './img/emotion3.png';
+import emotion4 from './img/emotion4.png';
+import emotion5 from './img/emotion5.png';
+
+export const getEmotionImgById = (emotionId) => 
+{
+    const targetEmotionID = String(emotionId);
+
+    switch(targetEmotionID)
+    {
+        case "1" : return emotion1;
+        case "2" : return emotion2;
+        case "3" : return emotion3;
+        case "4" : return emotion4;
+        case "5" : return emotion5;
+        default : return null;
+    }
+}
+
+
+처음 구동 시작
+①export const getEmotionImgById = (emotionId) =>{} 
+= 외부의 component들이 Emotion Image사용할 수 있도록 export
+외부의 component들로부터 Emotion Image와 관련된 데이터를 사용시
+해당 데이터가 getEmotionImgById라는 변수에 담아서 들어오는데,
+들어온 데이터를 처리하기 위해 emotionId라는 매개 변수를 이용한다.
+
+②const targetEmotionID = String(emotionId); 
+= targetEmotionID라는 변수에 emotionId 매개변수를 String형식으로 변환한 결과를 저장한다.
+들어온 데이터가 다른 자료형일 수도 있기 때문에 변환하는 과정을 거친다.
+
+③
+    switch(targetEmotionID)
+    {
+        case "1" : return emotion1;
+        case "2" : return emotion2;
+        case "3" : return emotion3;
+        case "4" : return emotion4;
+        case "5" : return emotion5;
+        default : return null;
+    }
+= targetEmotionID의 case를 나눠서 각각에 대응하는 값을 utils.js를 호출한 외부 component들에게 전달한다.
+*마찬가지로 child끼리는 데이터 전송이 안 된다는 거 같은데 왜 되는거지?
+
+
+
+
+
+DiaryItem.js
+- DiaryList에서 받아온 객체들 표시
+- DiaryItem.css, Button, util을 import한 상태
+
+import React from 'react';
+import './DiaryItem.css';
+import Button from './Button';
+import { getEmotionImgById } from '../util';
+
+function DiaryItem({id, emotionId, content, date}) {
+    return (
+        <div className = "DiaryItem">
+            <div className = "img_section">
+                <img src={getEmotionImgById(emotionId)} alt={`emotion${emotionId}`} />
+            </div>
+
+            <div className = "info_section">
+                <div className = "date_wrapper">{new Date(parseInt(date)).toLocaleString}</div>
+
+                <div className = "content_wrapper">{content.slice(0,25)}</div>
+            </div>
+
+            <div className = "button_section">
+                <Button text={"수정하기"} type={"default"} onClick={()=>{console.log("수정하기")}} />
+            </div>
+        </div>
+    );
+}
+
+export default DiaryItem;
+
+
+
+처음 구동 시작
+①function DiaryItem({id, emotionId, content, date})
+= DiaryItem을 사용하기 위해 4개의 prop들이 존재
+
+② <div className = "DiaryItem">
+= DiaryItem.css를 적용하기 className으로 속성 적용
+
+③ <div className = "img_section">  <div className = "info_section"> <div className = "button_section">
+= DiaryItem.css를 적용하기 className으로 속성 적용
+
+④<img src={getEmotionImgById(emotionId)} alt={`emotion${emotionId}`} />
+= util.js로부터 emotionId라는 prop을 이용해 image를 받아오고, alt속성을 이용해 어떤 image를 받아왔는지 명시
+
+⑤
+<div className = "date_wrapper">{new Date(parseInt(date)).toLocalString}</div>
+= 날짜 데이터를 date라는 prop을 통해 받아온 다음 int형식으로 변환 후 현재 시간으로 Date를 생성
++ DiaryItem.css를 적용하기 className으로 속성 적용
+
+<div className = "content_wrapper">{content.slice(0,25)}</div>
+= 내용에 대한 data를 content라는 prop을 통해 받아온 다음 최대25자까지로 내용을 제한해서 출력
++ DiaryItem.css를 적용하기 className으로 속성 적용
+
+⑥
+<Button text={"수정하기"} type={"default"} onClick={()=>{console.log("수정하기")}} />
+= Button.js를 사용하기 위해 Button.js에 존재하는 prop들을 이용해 data를 담아서 출력
+
+
+
+DiaryList.js
+- map을 통해 배열안의 객체들을 전부 꺼낸다. key값 사용해야 한다.
+- Button, DiaryItem, DiaryList.css를 import한 상태
+
+
+import React from 'react';
+import './DiaryList.css';
+import Button from './Button';
+import DiaryItem from './DiaryItem';
+
+function DiaryList({data}) {
+    return (
+        <div className="DiaryList">
+
+            <div className="menu_wrapper">
+
+                <div className="left_col">
+                    <select>
+                        <option value="newer">최신순</option>
+                        <option value="older">오래된순</option>
+                    </select>
+                </div>
+
+                <div className="right_col">
+                    <Button text={"새 글쓰기"} type={"positive"} onClick={()=>{console.log("새 글쓰기")}}/>
+                </div>
+
+            </div>
+
+            <div className="list_wrapper">
+                {
+                    data.map((it) => <DiaryItem key={it.id} {...it} />)
+                }
+            </div>
+
+        </div>
+    );
+}
+
+export default DiaryList;
+
+
+
+처음 구동 시작
+①function DiaryList({data}
+②<div className="DiaryList"> 
+③<div className="menu_wrapper">
+④<div className="left_col">
+<select> <option value="newer">최신순</option> <option value="older">오래된순</option> </select>
+
+⑤<div className="right_col">
+<Button text={"새 글쓰기"} type={"positive"} onClick={()=>{console.log("새 글쓰기")}}/>
+
+⑥<div className="list_wrapper"> data.map((it) => <DiaryItem key={it.id} {...it} />)
+
+
+
+
+React = SPA
+
+1 Page : N Components -> Server에서 받아온 value들을 Components 사이로 전달해야 한다.
+
+= Component안에 Component안에 Component안에 Component안에 Component안에 Component안에 Component Component안에 ... Component에 전달해야 하는 경우도 있다
+
+= value(state) 전달이 가장 큰 문제
+value(state) 전달 = prop을 통해 전달 : Parant->Child로만 가능(단방향) / Child<->Child 불가능 -> 해결하기 위해 사용하는게 Context, Redux, Mobx etc
+
+Context 
+= 따로 만들어야 함(여기에서는 DiaryStateContext(State를 하위 Component로 내려 보내는 용도)  DiaryDispatchContext(하위 Component의 Event받는 용도) 2개)
++ export 필요(durldptjsms export const DiaryStateContext = React.createContext(); export const DiaryDispatchContext = React.createContext(); 2개)
++ Provider를 통해 State를 처리할 하위 Component를 Groupping
+(여기서는 
+<DiaryStateContext.Provider value={data}>
+ <DiaryDispatchContext.Provider value={{onCreate, onUpdate, onDelete}}>
+ ...
+ </DiaryDispatchContext.Provider value={{onCreate, onUpdate, onDelete}}>
+<DiaryStateContext.Provider value={data}>
+) 
+
+
+export default : import {~} from ~ 
+export : import ~ from ~
+
+
+============================================================================================================
+10:35
+
+Home.js
+import React, { useState, useContext } from 'react';
+import Button from '../components/Button';
+import Header from '../components/Header';
+import DiaryList from '../components/DiaryList';
+import {DiaryStateContext} from '../App';
+
+function Home(props) {
+
+    const data = useContext(DiaryStateContext);
+
+    //현재 년월 출력 useState - pivotDate의 년이랑 월만 뽑아올 예정
+    const [pivotDate, setPivotDate] = useState(new Date());
+
+    //Date()는 월이 0부터 시작해서 +1 해줘야 한다
+    const headerTitle = `${pivotDate.getFullYear()}년 ${pivotDate.getMonth()+1}월`
+
+    const onDecreaseMonth = () => 
+    {
+        setPivotDate(new Date(pivotDate.getFullYear(), pivotDate.getMonth()-1) )
+    }
+
+    const onIncreaseMonth = () => 
+    {
+        setPivotDate(new Date(pivotDate.getFullYear(), pivotDate.getMonth()+1) )
+    }
+
+    return (
+        <div>
+            <Header
+            //title= {`${pivotDate.getFullYear()}년 ${pivotDate.getMonth()+1}월`} 이렇게도 가능
+            title= {headerTitle}
+	//함수 생성했으니 onClick안의 내용을 변경 ()=>{console.log("~")} -> onDecreaseMonth
+            leftChild={<Button text={"<"} type="positive" onClick={onDecreaseMonth}/>} 
+            rightChild={<Button text={">"} type="negative" onClick={onIncreaseMonth}/>}
+            />
+
+            <DiaryList data={data}/>
+        </div>
+        
+    );
+}
+
+export default Home;
+
+
+DiaryItem.js - Diary상세정보, 수정정보 이동 문구 추가
+import React from 'react';
+import './DiaryItem.css';
+import Button from './Button';
+import { getEmotionImgById } from '../util';
+import { useNavigate } from 'react-router-dom';
+
+function DiaryItem({id, emotionId, content, date}) {
+
+
+    //useNavigate Hook 선언 - Route(react-router-dom)에 존재
+    const navigate = useNavigate();
+
+    
+    //Diary 상세정보로 이동
+    const onDetail = () => 
+    {
+        navigate(`/diary/${id}`);
+    }
+
+    //Diary 수정정보로 이동, useNavigate(Hook)이용해서 이동
+    const goEdit = () => 
+    {
+        navigate(`/edit/${id}`);
+    }
+
+
+    return (
+        <div className = "DiaryItem">
+            <div className = "img_section">
+                <img src={getEmotionImgById(emotionId)} alt={`emotion${emotionId}`} />
+            </div>
+
+            {/*onClick Event추가 */}
+            <div onClick={onDetail} className = "info_section">
+                <div className = "date_wrapper">{new Date(parseInt(date)).toLocaleDateString()}</div>
+
+                <div className = "content_wrapper">{content.slice(0,25)}</div>
+            </div>
+
+            <div className = "button_section">
+                {/*onClick Event추가 */}
+                <Button text={"수정하기"} type={"default"} onClick={goEdit} />
+            </div>
+        </div>
+    );
+}
+
+export default DiaryItem;
+
+============================================================================================================
+11:39
+
+페이지 이동 - link or navigate in Router-DOM
+SPA에서 Anchor 태그 사용 안 한다. - MPA에서 사용
+
+Anchor 태그 : page자체를 요청 / <a href="~.hmtl"></a> / window.location.href : 함수 or Event 처리시 사용
+
+Link 
+- 주소 요청에 대해서  component 변경 / <Link to = '/~' > </Link>
+- Route 구성 필요 / 요청 : /~, Component : <~ />
+
+Navigate
+- 인자에 요청 주소가 들어감
+- useNavigate : navigate('/~')
+- 해당 Component 불러오기, 바꿔치기?
+
+
+DiaryItem.js
+import React from 'react';
+import './DiaryItem.css';
+import Button from './Button';
+import { getEmotionImgById } from '../util';
+import { useNavigate } from 'react-router-dom';
+
+function DiaryItem({id, emotionId, content, date}) {
+
+    const navigate = useNavigate();
+
+
+    const onDetail = () => 
+    {
+        navigate(`/diary/${id}`);
+    }
+
+
+    const goEdit = () => 
+    {
+        navigate(`/edit/${id}`);
+    }
+
+
+    return (
+        <div className = "DiaryItem">
+            {/*className에 String대신 prop통해서 가져오기*/}
+            <div className = {['img_section', `img_section_${emotionId}`].join(" ")  }>
+                <img src={getEmotionImgById(emotionId)} alt={`emotion${emotionId}`} />
+            </div>
+
+
+            <div onClick={onDetail} className = "info_section">
+                <div className = "date_wrapper">{new Date(parseInt(date)).toLocaleDateString()}</div>
+
+                <div className = "content_wrapper">{content.slice(0,25)}</div>
+            </div>
+
+            <div className = "button_section">
+                <Button text={"수정하기"} type={"default"} onClick={goEdit} />
+            </div>
+        </div>
+    );
+}
+
+export default DiaryItem;
+
+
+/pages/Diary.js
+import React from 'react';
+import Header from '../components/Header';
+import Button from '../components/Button';
+import { useNavigate, useParams } from 'react-router-dom';
+
+
+function Diary(props) {
+
+    // 글 상세 내용 출력 - /diary/변수값 -> route에서 변수값(:id)임을 명시해줘야 한다.
+    // useParams(Hook) - path variable의 값을 불러올 수 있다.
+    // QueryString - search variable로 가져오는 것
+    const {id} = useParams();
+    
+
+    // useNavigate(Hook)을 써서 앞/뒤로 이동
+    // navigate(-2) : 전전 페이지로 이동, navigate(-1) : 전 페이지로 이동, navigate(+1) : 다음 페이지로 이동
+    const navigate = useNavigate();
+
+
+
+    return (
+        <div>
+            <Header 
+            title = {`${id}글의 상세내용`}
+            leftChild={<Button text=" < 뒤로가기" 
+            type="negative"
+            // 함수 생성 새로 안 하고 처리
+            onClick={()=>{navigate(-1)}}/>}
+
+            
+            rightChild={<Button text="수정하기" 
+            type="positive" 
+            onClick={()=>{navigate(`/edit/${id}`)}}/>}
+
+
+            />
+        </div>
+    );
+}
+
+export default Diary;
+
+
+
+
+============================================================================================================
+12:33
+
+Diary.js
+
+import React, {useState, useContext, useEffect} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {DiaryStateContext} from '../App';
+import Header from '../components/Header';
+import Button from '../components/Button';
+
+
+
+
+function Diary(props) {
+
+    const {id} = useParams();
+    const navigate = useNavigate();
+
+    //Context의 State를 가져와서, id field의 내용의 객체 추출
+    //Context의 Provider에서 내려보내준 State 갖고 오기 - data & MOCKData([{}, {}, {}])
+    const data = useContext(DiaryStateContext);
+
+    //useState : 배열에서 id변수의 값으로 검색된 객체 저장
+    const  [diary, setDiary] = useState({});
+
+    //id변수가지고 검색된 내용(object)을 setDiary에 주입
+    // id, data(의존성 배열)이 변하면 앞의 함수가 작동된다.
+    useEffect
+    (
+        //객체내부의 값의 비교할 때, 같은 type으로 비교해야 나중에 오류 덜 발생한다.
+        ()=>{const matchDiary = data.find((it)=> String(it.id) === String(id));
+        
+            //matchDiary는 값이 있을 수도, 없을 수도 있다.
+            
+            if(!matchDiary) //값 없을 때,
+            {
+                alert("해당 일기가 존재하지 않습니다. 초기 페이지로 이동합니다.");
+                navigate("/", {replace: true})
+            }
+
+            else // 값 있을 때, diary에 값 주입
+            {
+                setDiary(matchDiary);
+            }
+        }
+        , [id, data]
+    );
+
+
+
+    return (
+        <div>
+            <Header 
+            title = {`${id}글의 상세내용`}
+            leftChild={<Button text=" < 뒤로가기" 
+            type="negative"
+            
+            onClick={()=>{navigate(-1)}}/>}
+
+            
+            rightChild={<Button text="수정하기" 
+            type="positive" 
+            onClick={()=>{navigate(`/edit/${id}`)}}/>}
+            />
+
+            
+        </div>
+    );
+}
+
+export default Diary;
+
+
+============================================================================================================
+14:31
+
+util.js - 자주 사용하는 함수, 배열, 변수 등을 정의
+import emotion1 from './img/emotion1.png';
+import emotion2 from './img/emotion2.png';
+import emotion3 from './img/emotion3.png';
+import emotion4 from './img/emotion4.png';
+import emotion5 from './img/emotion5.png';
+
+export const getEmotionImgById = (emotionId) => 
+{
+    const targetEmotionID = String(emotionId);
+
+    switch(targetEmotionID)
+    {
+        case "1" : return emotion1;
+        case "2" : return emotion2;
+        case "3" : return emotion3;
+        case "4" : return emotion4;
+        case "5" : return emotion5;
+        default : return null;
+    }
+}
+
+// 배열을 외부에서 가져가서 사용할 수 있도록 export
+export const emotionList = [
+    {id: 1, name: "완전 좋음", img: getEmotionImgById(1)},
+    {id: 2, name: "좋음", img: getEmotionImgById(2)},
+    {id: 3, name: "보통", img: getEmotionImgById(3)},
+    {id: 4, name: "나쁨", img: getEmotionImgById(4)},
+    {id: 5, name: "완전 나쁨", img: getEmotionImgById(5)}
+];
+
+
+Viewer.js
+
+import React from 'react';
+import './Viewer.css';
+import {emotionList} from '../util';
+
+function Viewer({content, emotionId}) {
+
+    // emotionId로 emotionList에서 해당 ID 객체 추출
+    // emotionList : [{},{},{},{},{}]
+    const emotionItem = emotionList.find(
+        (it) => String(emotionId) === String(it.id)
+
+    );
+
+    return (
+        <div className="Viewer">
+            {/*image적용*/}
+            <section>
+                <h4>오늘의 감정</h4>
+                <div>
+                    <img alt={emotionItem.name} src={emotionItem.img} />
+                    <div className="emotion_descript">{emotionItem.name}</div>
+                </div>
+            </section>
+
+            {/*일기 내용 출력*/}
+            <section>
+                <h4>오늘의 일기</h4>
+                <div className="content_wrapper">
+                    <p>{content}</p>
+                </div>
+            </section>
+        </div>
+    );
+}
+
+export default Viewer;
+
+
+============================================================================================================
+15:44
+Diary.js 오류 잡기
+
+import React, {useState, useContext, useEffect} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {DiaryStateContext} from '../App';
+import Header from '../components/Header';
+import Button from '../components/Button';
+import Viewer from '../components/Viewer';
+
+
+
+function Diary(props) {
+
+    const {id} = useParams();
+
+    const data = useContext(DiaryStateContext);
+
+    const  [diary, setDiary] = useState();
+
+    useEffect
+    (
+        ()=>{const matchDiary = data.find((it)=> String(it.id) === String(id));
+        
+            if(!matchDiary)
+            {
+                alert("해당 일기가 존재하지 않습니다. 초기 페이지로 이동합니다.");
+                navigate("/", {replace: true})
+            }
+
+            else
+            {
+                setDiary(matchDiary);
+            }
+        }
+        , [id, data]
+    );
+
+    const navigate = useNavigate();
+
+
+        //diary에 값이 안 들어온 경우
+        if(!diary)
+        {
+            return <div>현재 값이 로딩중입니다.</div>
+        }
+    
+        //diary에 값이 주입된 경우
+        else
+        {
+            const {content, emotionId, date} = diary;
+        
+
+            return (
+            <div>
+                <Header 
+                title = {`${id}글의 상세내용`}
+                leftChild={<Button text=" < 뒤로가기" 
+                type="negative"
+                onClick={()=>{navigate(-1)}}/>}
+
+                rightChild={<Button text="수정하기" 
+                type="positive" 
+                onClick={()=>{navigate(`/edit/${id}`)}}/>}
+                />
+
+                <Viewer {...diary} />
+            </div>
+            );
+        }
+}
+
+export default Diary;
+
+
+util.js
+import emotion1 from './img/emotion1.png';
+import emotion2 from './img/emotion2.png';
+import emotion3 from './img/emotion3.png';
+import emotion4 from './img/emotion4.png';
+import emotion5 from './img/emotion5.png';
+
+export const getEmotionImgById = (emotionId) => 
+{
+    const targetEmotionID = String(emotionId);
+
+    switch(targetEmotionID)
+    {
+        case "1" : return emotion1;
+        case "2" : return emotion2;
+        case "3" : return emotion3;
+        case "4" : return emotion4;
+        case "5" : return emotion5;
+        default : return null;
+    }
+}
+
+
+export const emotionList = [
+    {id: 1, name: "완전 좋음", img: getEmotionImgById(1)},
+    {id: 2, name: "좋음", img: getEmotionImgById(2)},
+    {id: 3, name: "보통", img: getEmotionImgById(3)},
+    {id: 4, name: "나쁨", img: getEmotionImgById(4)},
+    {id: 5, name: "완전 나쁨", img: getEmotionImgById(5)},
+];
+
+
+Viewer.js
+import React from 'react';
+import './Viewer.css';
+import {emotionList} from '../util';
+
+function Viewer({content, emotionId, name}) {
+
+
+    const emotionItem = emotionList.find(
+        (it) => String(emotionId) === String(it.id)
+
+    );
+
+    return (
+        <div className="Viewer">
+ 
+            <section>
+                <h4>오늘의 감정</h4>
+                <div className={["emotion_img_wrapper", `emotion_img_wrapper_${emotionId}`].join(" ")}>
+                    <img alt={emotionItem.name} src={emotionItem.img} />
+                    <div className="emotion_descript">{emotionItem.name}</div>
+                </div>
+            </section>
+
+
+            <section>
+                <h4>오늘의 일기</h4>
+                <div className="content_wrapper">
+                    <p>{content}</p>
+                </div>
+            </section>
+        </div>
+    );
+}
+
+export default Viewer;
+
+
+*const  [diary, setDiary] = useState({}); -> const  [diary, setDiary] = useState();
+{}이거 하나 지웠을 뿐인데, 뭐가 달라진거지?
+
+
+============================================================================================================
+16:36
+
+useEffect = 비동기로 작동 = 완전히 끝나고 실행X, 실행 중 다른 작업이 같이 진행될 수 있다.
+useEffect를 통해 diary에 값을 넣는데, 같은 파일 다른 곳에서 diary를 다른 값으로 선언해버리고 먼저 처리 되면, 오류가 난다.
+그래서 if로 분기 만들어서 diary에 완전히 데이터가 들어간 걸 확인한 후에 else를 진행한다는 의미다.
+
+DiaryList.js
+
+import React from 'react';
+import './DiaryList.css';
+import Button from './Button';
+import DiaryItem from './DiaryItem';
+import { useNavigate } from 'react-router-dom';
+
+function DiaryList({data}) {
+
+    //useNavigate : 함수나 이벤트에서 특정 요청 보낼 때, 라우터 요청에 대한 Component 출력
+    const navigate = useNavigate();
+
+
+
+    return (
+        <div className="DiaryList">
+
+            <div className="menu_wrapper">
+
+                <div className="left_col">
+                    <select>
+                        <option value="newer">최신순</option>
+                        <option value="older">오래된순</option>
+                    </select>
+                </div>
+
+                <div className="right_col">
+                    <Button text={"새 글쓰기"} type={"positive"} onClick={()=>{navigate('/new')}}/>
+                </div>
+
+            </div>
+
+            <div className="list_wrapper">
+                {
+                    data.map((it) => <DiaryItem key={it.id} {...it} />)
+                }
+            </div>
+
+        </div>
+    );
+}
+
+export default DiaryList;
+
+
+
+New.js
+
+import React, { useContext } from 'react';
+import Header from '../components/Header';
+import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
+import DiaryDispatchContext from '../App';
+import Editor from '../components/Editor'; //Edit = Page, Editor = Component
+
+function New(props) {
+
+    // useNavigate
+    const navigate = useNavigate();
+
+    // Context의 Provider에 onCreate를 연결 설정 : useContext -> App.js로 전송
+    // onCreate는 App.js에 있는 Dispatch에게 전달
+    // onSubmit함수에서 처리한 결과를 받으면, Dispatch에게 전달
+    const {onCreate} = useContext(DiaryDispatchContext);
+
+    //하위 Event를 받아서 onCreate에게 전달
+    // data = onSubmit에서 올라오는 객체
+    // Editor로부터 받은 data를 처리
+    const onSubmit = (data) => 
+    {
+        console.log("글쓰기 호출됨");
+        // 구조 분해 할당 : ES6(2015)에서 적용 객체의 필드의 값을 새로운 변수에 할당.
+        const {date, content, emotionId} = data;
+        onCreate(date, content, emotionId);
+
+        // 완료되면 해당 페이지로 이동
+        navigate('/', {replace: true});
+    }
+
+    return (
+        <div>
+            <Header 
+            title="새 일기 쓰기" 
+            leftChild={<Button text=" < 뒤로가기" 
+            type="positive" 
+            onClick={()=>{navigate(-1)}}/>}/>
+
+            {/*Editor의 onSubmit(Event, prop)으로 전달할 객체(값들)이 들어오면 onSubmit함수로 전달.*/}
+            <Editor onSubmit={onSubmit}/>
+        </div>
+
+    );
+}
+
+export default New;
+
+
+============================================================================================================
+17:33
+
+*map이나 find에서는 {}쓰면 안 된다.
+EmotionItem.js
+import React from 'react';
+import './EmotionItem.css';
+
+// 새 일기쓰기에서 emotionList의 배열의 객체 5개 출력
+function EmotionItem({id, name, img, onClick, isSelected}) {
+
+    // 5개 중 1개 선택되면 처리 시작
+    const handleOnClick = () => 
+    {
+        onClick(id);
+    }
+
+    return (
+        //image 5개
+        <div 
+        className={["EmotionItem", isSelected ? `EmotionItem_${id}` : 'EmotionItem_off'].join(" ")}
+        onClick={handleOnClick}
+        >
+            
+            {/* 오늘의 감정 선택 시 선택되면서 배경색이랑 같이 적용됨 */}
+            <img alt={`emotion${id}`} src = {img} />
+            <span>{name}</span>
+
+        </div>
+    );
+}
+
+export default EmotionItem;
+
+
+Editor.js
+import React from 'react';
+import './EmotionItem.css';
+import {emotionList} from '../util';
+import EmotionItem from './EmotionItem';
+
+
+const handleChangeEmotion = () => 
+{
+    console.log("Editor : handleChangeEmotion")
+}
+
+
+function Editor() {
+    return (
+        <div className="Editor">
+            <h4>오늘의 날짜</h4>
+            <div className="input_wrapper"> 
+                <input type="date"/>
+            </div>
+
+            <div className="editor_section">
+                <h4>오늘의 감정</h4>
+                <div className="input_wrapper emotion_list_wrapper">
+                    {
+                        emotionList.map((it) => <EmotionItem key={it.id} {...it} onClick={handleChangeEmotion} isSelected={true}/>
+                    )}
+                </div>
+            </div>
+
+            <div className="editor_section"></div>
+            <div className="editor_section bottom_section"></div>
+        </div>
+    );
+}
+
+export default Editor;
+
+
+
+New.js
+import React, { useContext } from 'react';
+import Header from '../components/Header';
+import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
+import DiaryDispatchContext from '../App';
+import Editor from '../components/Editor';
+
+function New(props) {
+
+    const navigate = useNavigate();
+
+    const {onCreate} = useContext(DiaryDispatchContext);
+
+    const onSubmit = (data) => 
+    {
+        console.log("글쓰기 호출됨");
+
+        const {date, content, emotionId} = data;
+        onCreate(date, content, emotionId);
+
+
+        navigate('/', {replace: true});
+    }
+
+    return (
+        <div>
+            <Header 
+            title="새 일기 쓰기" 
+            leftChild={<Button text=" < 뒤로가기" 
+            type="positive" 
+            onClick={()=>{navigate(-1)}}/>}/>
+
+            <Editor onSubmit={onSubmit}/>
+        </div>
+
+    );
+}
+
+export default New;
+
+
+DiaryList.js
+import React from 'react';
+import './DiaryList.css';
+import Button from './Button';
+import DiaryItem from './DiaryItem';
+import { useNavigate } from 'react-router-dom';
+
+function DiaryList({data}) {
+
+    
+    const navigate = useNavigate();
+
+
+
+    return (
+        <div className="DiaryList">
+
+            <div className="menu_wrapper">
+
+                <div className="left_col">
+                    <select>
+                        <option value="newer">최신순</option>
+                        <option value="older">오래된순</option>
+                    </select>
+                </div>
+
+                <div className="right_col">
+                    <Button text={"새 글쓰기"} type={"positive"} onClick={()=>{navigate('/new')}}/>
+                </div>
+
+            </div>
+
+            <div className="list_wrapper">
+                {
+                    data.map((it) => <DiaryItem key={it.id} {...it} />)
+                }
+            </div>
+
+        </div>
+    );
+}
+
+export default DiaryList;
+
+

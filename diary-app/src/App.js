@@ -18,7 +18,12 @@ const mockData = [
 ];
 
 
-const onCreate = () => {}
+// 하위 Component에서 요청한 Event 처리하는 함수들
+const onCreate = (date, content, emotionId) => 
+{
+  
+}
+
 const onUpdate = () => {}
 const onDelete = () => {}
 

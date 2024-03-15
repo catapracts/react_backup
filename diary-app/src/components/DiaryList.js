@@ -2,8 +2,15 @@ import React from 'react';
 import './DiaryList.css';
 import Button from './Button';
 import DiaryItem from './DiaryItem';
+import { useNavigate } from 'react-router-dom';
 
 function DiaryList({data}) {
+
+    
+    const navigate = useNavigate();
+
+
+
     return (
         <div className="DiaryList">
 
@@ -17,7 +24,7 @@ function DiaryList({data}) {
                 </div>
 
                 <div className="right_col">
-                    <Button text={"새 글쓰기"} type={"positive"} onClick={()=>{console.log("새 글쓰기")}}/>
+                    <Button text={"새 글쓰기"} type={"positive"} onClick={()=>{navigate('/new')}}/>
                 </div>
 
             </div>
