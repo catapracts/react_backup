@@ -31,8 +31,8 @@ function reducer(state, action)
   {
     case "INIT" : return action.data;
     case "CREATE" : return [action.data, ...state];
-    //case "UPDATE" : return action.data;
-    //case "DELETE" : return action.data;
+    case "UPDATE" : return state.map( (it)=> String(it.id) === String(action.data.id) ? {...action.data}: it ) ;
+    case "DELETE" : return state.filter( (it) => String( it.id ) !== String (action.targetId ));
   }
 }
 
@@ -63,8 +63,23 @@ const onCreate = (date, content, emotionId) =>
   });
 }
 
-const onUpdate = () => {}
-const onDelete = () => {}
+const onUpdate = (id, date, emotionId, content) => 
+{
+  console.log (`App 업데이트 날짜 : ${date}`)
+  console.log (`포멧 완료된 날짜 : ${new Date(date).getTime()}`)
+  dispatch({
+    type: "UPDATE", 
+    data: { id : id, date : new Date(date).getTime(), emotionId : emotionId, content : content,}
+  });
+}
+
+const onDelete = (targetId) => 
+{
+  console.log(`하위에서 삭제 id : ${targetId}`)
+  dispatch({
+    type:'DELETE', targetId,
+  } ); 
+}
 
   return (
     <DiaryStateContext.Provider value={data}>

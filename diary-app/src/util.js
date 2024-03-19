@@ -53,5 +53,30 @@ export const getFormattedDate = (targetDate) =>
 
 
     return `${year}-${month}-${day}`;
-
 }
+    
+    export const getMonthRangeByDate = (date) => {
+
+    
+    const beginTimeStemp = new Date(
+        date.getFullYear(),         
+        date.getMonth(),             
+        1,                           
+        0,                           
+        0,                          
+        0                           
+    ); 
+
+    
+    const endTimeStemp = new Date(
+        date.getFullYear(),             
+        date.getMonth() + 1 ,             
+        0,                                          
+        23,                              
+        59,                              
+        59                                
+    ); 
+
+    return { beginTimeStemp, endTimeStemp } ; 
+
+    }
