@@ -575,11 +575,75 @@ pages안에 있는 component들은 component폴더에 있는 애들 가져와서
 객체 = memory에서 작동
 
 ============================================================================================================
-15:31
+15:37, 16:31
+
+Spring에서 WorkSpace 열 때, Employee_Manage_App_FE_BE-REST-API선택
+import project - Gradle - Existing Gradle Project(환경 따라 import 선택) - Employee_Manage_App_FE_BE-REST-API/Springboot-BackEnd 이거 선택 - Next로 진행 - Finish
+JPA, MySQL이용한 SpringBoot - DB만들어야한다. create database restlab; use restlab;
+react-router-dom, axios, boot-strap설치된 상태
+
+ListEmployeeComponent.js = 배열 하나에 객체
+
+EmployeeService - axios import한 상태 / method 이용해서 API요청할 주소 처리
+
+postman = Server/Client 사이에 restAPI로 어떤 data 요청, 받아오는 건 잘 되는지 확인하는 용도
+
+JSON
+F12 - network tab : client에서 request, reply하는 data확인 가능 / 금지마크 누르면 기호 다 날아간다.
+GET Request
+Client : React
+
+EmployeeController.java
+@RestController -> 요청한 주소에 대해 Client로 return되는 모든 data의 형태는 JSON으로 변경된다.
+원래는 Controller Class위에 @Controller(백엔드에서 처리후 view page를 return)만 붙임
+그런데 @RestController이거 붙이면 JSON형태로  Return한다.
+
+@Controller 
+- @GetMapping, @PostMapping 2개의 요청만 받는다
+- 백엔드 logic 처리 후 view page return
+- MPA = Server side Rendering
+
+@RestController
+- JSON으로 값을 Client에게 전달 - Client에서 rendering / Client에게서 JSON으로 값을 받고 DB에 저장
+- @GetMapping : DB의 값을 Select 
+- @PostMapping : Client에서 넘겨받은 값을 DB에 insert
+- @PutMapping  : DB의 값 update
+- @DeleteMapping : DB에 값 delete
+- RestAPI통신
+
+@CrossOrigin("*") : CORS setting
+
+@RequestMapping("~/~") : @RequestMapping하위 요청에 상속됨(@RestController밑에다 명시하면)
 
 ============================================================================================================
-16:31
+17:38
 
-============================================================================================================
-17:31
+employee객체를 list에 담아서 전달
+get = select, 
+post = insert, 
+patch = update, column 중 일부분만 수정
+put = update, column 전부 수정, 
+delete = delete
+
+객체랑 JSON의 형태는 동일함 but 객체 = memory에서 사용
+
+App.js
+<Route path = "/" element = { <ListEmployeeComponent />}></Route>
+
+ListEmployeeComponent.js
+set함수 통해 들어오고, 처리
+서버에게 요청할 주소
+getAllEmployees() -> axios에 요청 보낸것
+employee : 객체 꺼낸 것
+
+서버에게 비동기 통신하는 여러가지 방법 by HTTP method(GET, POST, PUSH, PATCH, DELETE)
+1. XMLHTTPRequest : 초창기 사용, 사용 구문 복잡
+2. fetch : JS를 기본 내장, Library 설치 없이 사용 가능
+3. AJAX : JQuery Library 등록 - MPA(Server Side Rendering)
+4. axios : React에서 많이 사용 / Library 따로 설치 필요 - npm install axios, yarn add axios
+5. JSON
+
+EmployeeService.js
+주소에 대해 요청 정보를 하나에다 모아놓으면 편하다.
+new 써서 객체화시킨 후 export -> 호출만 하면 자동 사용 가능
 
