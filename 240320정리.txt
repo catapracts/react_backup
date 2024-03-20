@@ -1,0 +1,358 @@
+09:35
+
+MPA : Multi Page App. / (ex)
+SPA : Single Page App. / (ex)React
+CSR : Client Side Rendering - axios
+SSR : Server Side Rendering - ajax
+
+Repo = DAO
+ORM
+- Repository : Method 이용해서 CRUD
+=DAO(Data Access Object) : DB를 CRUD Query하는 Object in JSP / DB를 직접 Access할 수 있는 Object
+- (ex) MyBatis, JPA
+
+Repository
+- findAll() : List형태로 전체 데이터 반환 = select * from table이름
+- findById(Object) : Object 1개 반환 = select * from table이름 where column이름 = 해당 객체 번호 / Optional type
+- Update() : save / 기존 Object 가지고 와서 modify 후 save
+- Insert() : save / 새로운 Object 생성 후 save
+- Delete(Object) : delete
+
+Controller에서 Repository 직접 호출해서 사용하면 반복 code 계속 생성된다.
+그러니까 웬만하면 Service단에서 기능 구현 다 하고 Service를 호출해서 사용하기
+
+============================================================================================================
+10:33
+
+React  = SPA이므로 값만 받아와야 한다. = 비동기통신이 필수
+ajax보다 더 나은게 axios
+
+@ = Annotation
+@RequiredArgs - memory에 올라간 object들에 dependencies injection시키는 역할
+
+SpringBoot
+File - New -Spring Starter Project - AjaxEx라는 이름(Package, Name) -> Spring Web(MVC model관련 @사용) -> Finish
+나머지 dependencies설정은 shop에서 복사 붙여넣기
+저장 후 buil.gradle refresh하기
+application properties - > UTF-8설정 / Spring Boot의 configuration setting file
+
+
+★Spring MVC 개발 환경 -> implementation 'org.springframework.boot:spring-boot-starter-web'
+spring.freemarker.cache=false -> 개발시에는 false 선택
+logging.level.org.hibernate.type.descriptor.sql=trace -> 쿼리에 물음표로 출력되는 바인드 파라미터 출력
+spring.thymeleaf.cache = false -> Thymeleaf cache 사용 중지
+spring.devtools.livereload.enabled=true -> 수정 시 자동 refresh
+============================================================================================================
+11:35
+
+Http Request Method : GET, POST, PUT(전체 field 수정), PATCH(특정 field 수정), DELETE
+Http Response Status : 200, 404, 405, 500
+
+ajax-ex-01.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ahax-ex-01</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax이용해서 GET요청 보내기</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex01
+		const exFn = () => 
+		{
+			console.log("호출 성공")
+			$.ajax({
+				type : "get", // Request Method
+				url : "/ex01", //Request URL
+				//요청 성공 시 실행 : HTTP status code = 200(OK) / res = server에서 보내는 값
+				success : function(res){console.log("Success : ", res.data)},
+				//요청 실패시 실행 : HTTP status code = 404, 405, 500, etc... / err = server에서 보내는 값
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
+
+
+
+AjaxController.java
+package com.example.AjaxEX.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+
+@Controller
+public class AjaxController 
+{
+	// http://localhost:9696/ex01
+	@GetMapping("/ex01")
+	public String ex01()
+	{
+		System.out.println("ajax-ex-01 request success");
+		//res : index.html파일의 src code가 그대로 전송
+		return "index";
+	}
+	
+	// http://localhost:9696/ex02
+	// @ResponseBody -> client로 전송되는 object들을 JSON형식으로 변환 후 전송
+	@PostMapping("/ex02")
+	public @ResponseBody String ex02()
+	{
+		System.out.println("ajax-ex-02 request success");
+		return "Hello";
+	}
+}
+
+
+ajax-ex-02.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ahax-ex-02</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax이용해서 POST요청 보내기</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex02
+		const exFn = () => 
+		{
+			console.log("호출 성공")
+			$.ajax({
+				type : "POST", // Request Method
+				url : "/ex02", //Request URL
+				//요청 성공 시 실행 : HTTP status code = 200(OK) / res = server에서 보내는 값
+				success : function(res){console.log("Success : ", res.data)},
+				//요청 실패시 실행 : HTTP status code = 404, 405, 500, etc... / err = server에서 보내는 값
+				error : function(err){
+					console.log("Fail : ", err)}
+				
+			})
+		} 
+	</script>
+</html>
+F12 - network tab - Headers / Response
+PostMan - data request reply 확인 시 자주 사용
+
+============================================================================================================
+12:36
+
+@GetMapping 하면 option 2개 나온다
+@RestController 쓰면, JSON형식으로 값 전달할 때, @ResponseBody쓸 필요 없다.
+@Controller쓰면, JSON형식으로 값 전달할 때, @ResponseBody써야 한다.
+
+AjaxController.java
+package com.example.AjaxEX.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+
+@Controller
+public class AjaxController 
+{
+	// http://localhost:9696/ex01
+	@GetMapping("/ex01")
+	public String ex01()
+	{
+		System.out.println("ajax-ex-01 request success");
+		//res : index.html파일의 src code가 그대로 전송
+		return "index"; // 이렇게만 쓰면 ~.html로 전달
+	}
+	
+	// http://localhost:9696/ex02
+	// @ResponseBody -> client로 전송되는 object들을 JSON형식으로 변환 후 전송
+	@PostMapping("/ex02")
+	public @ResponseBody String ex02()
+	{
+		System.out.println("ajax-ex-02 request success");
+		return "Hello";
+	}
+	
+	// GET 요청으로 param으로 넘기는 value 받기
+	// client에서 넘기는 data 받기
+	// @RequestParam("client에서 넘어오는 변수 이름") 자료형 변수이름 -> data이동할 때는 항상 String형식으로 전달 + 자동 변환
+	@GetMapping("/ex03")
+	public @ResponseBody String ex03(@RequestParam("param1") String param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-03 request success");
+		System.out.println("param1의 값 : " + param1);
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-03 request success";
+	}
+	
+	// POST요청으로 param으로 value 넘기기 : /ex04?param1=값1&param2=값2
+	// client에서 넘기는 data 받기
+	@PostMapping("/ex04")
+	public @ResponseBody String ex04(@RequestParam("param1") int param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-04 request success");
+		System.out.println("param1의 값 : " + (param1 + 10)); // param1 + 10 -> 결과 : 1010(String 취급), (param1 + 10) -> 결과 : 20(숫자 취급)
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-04 request success";
+	}
+	
+	// GET Request에서 param으로 보내는 변수의 값을 DTO의 Field에 injection
+	// Param의 변수이름 = DTO Field 이름 이어야만 자동 injection된다.
+	@GetMapping("/ex05")
+	public @ResponseBody AjaxDTO ex05(@ModelAttribute AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-05 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		return ajaxDTO;
+	}		
+}
+
+
+ajax-ex-03.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ahax-ex-03</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax이용 + GET요청 + Parameter</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex03
+		const exFn = () => 
+		{
+			const val1 = "Hi";
+			console.log("호출 성공")
+			//ajax = object type
+			$.ajax({
+				type : "GET", // Request Method
+				url : "/ex03", //Request URL				
+				data : {"param1":val1, "param2":"Hello World"}, //Client의 data를 Server로 전송 = data
+				//요청 성공 시 실행 : HTTP status code = 200(OK) / res = server에서 보내는 값
+				success : function(res)
+				{
+					console.log("Success : ", res.data)
+					// Server로 받아온 value가 res에 있다.(value만 받아옴)
+					// 받아온 값을 가지고 HTML만들어서, 수정된 부분만 Rendering
+				},
+				//요청 실패시 실행 : HTTP status code = 404, 405, 500, etc... / err = server에서 보내는 값
+				error : function(err){
+					console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
+
+GET방식은 URL 뒤에다가 변수 넘기는 방식
+POST방식은 HTTP Header 앞에 들어간다
+Payload : 값 / Client -> Server
+Response : 값 / Server -> Client
+
+
+
+ajax-ex-04.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ahax-ex-04</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax이용 + POST요청 + Parameter</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex04
+		const exFn = () => 
+		{
+			const val1 = 10;
+			console.log("호출 성공")
+			$.ajax({type : "POST", url : "/ex04", data : {"param1" : val1, "param2" : "dlroW olleH"},
+				success : function(res){console.log("Success : ", res.data)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
+
+
+@ModelAttribute : Parameter으로 넘어오는 값을 DTO(Object)에 injection 시켜주는 역할
+
+
+AjaxDTO,java
+package com.example.AjaxEX.dto;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class AjaxDTO
+{
+	//Client에서 넘어오는 field의 값을 받는다
+	//Server에서 처리된 결과를 client에게 보낼 때,
+	private String param1;
+	private String param2;
+}
+
+
+
+
+
+ajax-ex-05.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ahax-ex-04</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax + GET요청 + DTO로 Request/Response</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex04
+		const exFn = () => 
+		{
+			const val1 = 10;
+			console.log("호출 성공")
+			$.ajax({type : "GET", url : "/ex05", data : {"param1" : val1, "param2" : "dlroW olleH"},
+				success : function(res){console.log("Success : ", res.data)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
+============================================================================================================
+14:39
+
+
+============================================================================================================
+15:37, 16:31
+
+
+============================================================================================================
+17:38

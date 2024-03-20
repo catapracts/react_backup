@@ -15,15 +15,22 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     
     //사원 리스트 
-    public List<Employee> getEmployeeList() {
+    public List<Employee> getEmployeeList() 
+    {
     	return employeeRepository.findAll();
     }
     
     //사원 정보 
-    public Employee createEmployee(EmployeeDTO employeeDTO) {
+    public Employee createEmployee(EmployeeDTO employeeDTO) 
+    {
     	Employee employee = new Employee(employeeDTO); 
     	
     	return employeeRepository.save(employee); 
+    }
+    
+    public void Test()
+    {
+    	employeeRepository.findAll();
     }
     
 }

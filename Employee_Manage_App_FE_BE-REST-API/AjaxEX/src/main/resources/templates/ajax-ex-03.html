@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ahax-ex-03</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax이용 + GET요청 + Parameter</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex03
+		const exFn = () => 
+		{
+			const val1 = "Hi";
+			console.log("호출 성공")
+			
+			$.ajax({type : "GET", url : "/ex03", data : {"param1":val1, "param2":"Hello World"},
+				success : function(res){console.log("Success : ", res.data)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
