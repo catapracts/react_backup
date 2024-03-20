@@ -46,7 +46,7 @@ spring.devtools.livereload.enabled=true -> 수정 시 자동 refresh
 11:35
 
 Http Request Method : GET, POST, PUT(전체 field 수정), PATCH(특정 field 수정), DELETE
-Http Response Status : 200, 404, 405, 500
+Http Response Status : 200, 400, 404, 405, 500
 
 ajax-ex-01.html
 <!DOCTYPE html>
@@ -143,7 +143,7 @@ ajax-ex-02.html
 		} 
 	</script>
 </html>
-F12 - network tab - Headers / Response
+F12 - network tab - Headers / Response / payload / preview
 PostMan - data request reply 확인 시 자주 사용
 
 ============================================================================================================
@@ -252,7 +252,7 @@ ajax-ex-03.html
 					// Server로 받아온 value가 res에 있다.(value만 받아옴)
 					// 받아온 값을 가지고 HTML만들어서, 수정된 부분만 Rendering
 				},
-				//요청 실패시 실행 : HTTP status code = 404, 405, 500, etc... / err = server에서 보내는 값
+				//요청 실패시 실행 : HTTP status code = 401, 404, 405, 500, etc... / err = server에서 보내는 값
 				error : function(err){
 					console.log("Fail : ", err)}
 			})
@@ -347,12 +347,770 @@ ajax-ex-05.html
 	</script>
 </html>
 ============================================================================================================
-14:39
+14:33
+
+Ajax는 변수 타입 따로 지정 안 하면 Param으로
+Axios는 변수 타입 따로 지정 안 하면 JSON으로
+
+
+
+
+
+
+AjaxController.java
+package com.example.AjaxEX.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.example.AjaxEX.dto.AjaxDTO;
+
+
+@Controller
+public class AjaxController 
+{
+	// http://localhost:9696/ex01
+	@GetMapping("/ex01")
+	public String ex01()
+	{
+		System.out.println("ajax-ex-01 request success");
+
+		return "index";
+	}
+	
+	// http://localhost:9696/ex02
+
+	@PostMapping("/ex02")
+	public @ResponseBody String ex02()
+	{
+		System.out.println("ajax-ex-02 request success");
+		return "Hello";
+	}
+	
+
+	@GetMapping("/ex03")
+	public @ResponseBody String ex03(@RequestParam("param1") String param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-03 request success");
+		System.out.println("param1의 값 : " + param1);
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-03 request success";
+	}
+	
+
+	@PostMapping("/ex04")
+	public @ResponseBody String ex04(@RequestParam("param1") int param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-04 request success");
+		System.out.println("param1의 값 : " + (param1 + 10));
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-04 request success";
+	}
+	
+
+	@GetMapping("/ex05")
+	public @ResponseBody AjaxDTO ex05(@ModelAttribute AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-05 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		return ajaxDTO;
+	}
+	
+	@PostMapping("/ex06")
+	public @ResponseBody AjaxDTO ex06(@ModelAttribute AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-06 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());		
+		return ajaxDTO;
+	}
+
+
+	// Client에서 JSON으로 Service 전송
+	// @RequestBody : Client->Server JSON data를 JS object(RAM)에 injection(Network통해서 Client로부터 들어온 값) : 역직렬화
+	// @ResponseBody : Server->Client object를 JSON data로 변환 후 전송(Server가 Network로 Client를 향해 보내는 값) : 직렬화
+	@PostMapping("/ex07")
+	public @ResponseBody AjaxDTO ex07(@RequestBody AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-07 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());	
+		return ajaxDTO;
+	}
+	
+}
+
+
+
+
+ajax-ex-06.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ahax-ex-04</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax + POST요청 + DTO로 Request/Response</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex04
+		const exFn = () => 
+		{
+			const val1 = 10;
+			console.log("호출 성공")
+			$.ajax({type : "POST", url : "/ex06", 
+data : {"param1" : val1, "param2" : "6666666666666"}, //Param형식 data
+				success : function(res){console.log("Success : ", res.data)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
+
+
+""들어가면 JSON type
+
+ajax-ex-07.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ajax-ex-07</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax + GET요청 + JSON + DTO로 Request/Response</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex04
+		const exFn = () => 
+		{
+			const val1 = 77;
+			const params = {param1 : val1, param2 : "aaaaa"}; //JS Object - {field : value} pair
+			console.log("호출 성공")
+			$.ajax({type : "POST", url : "/ex07", // JSON은 POST로만 가능
+				contentType : "application/json", // JSON으로 전송 시 이렇게 선언해줘야 한다. 안 하면 param으로 넘어간다.
+				data : JSON.stringify(params), // Client의 data를 Server로 전송, JSON.stringify(JS객체) = 직렬화(Object를 JSON형태로 변환)
+				success : function(res){console.log("Success : ", res.data)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
 
 
 ============================================================================================================
-15:37, 16:31
+15:44
 
+AjaxDTO.java
+package com.example.AjaxEX.dto;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor // 자동으로 기본생성자 만들어주는 Annotation ★실수 많이하니까 조심
+public class AjaxDTO
+{
+	// 다른 생성자가 있으면 기본생성자 명시해줘야함 - @NoArgsConstructor // 자동으로 기본생성자 만들어주는 Annotation
+	
+	//객체주입을 위해 만든 생성자
+	public AjaxDTO(String data1, String data2)
+	{
+		param1 = data1;
+		param2 = data2;
+	}
+	private String param1;
+	private String param2;
+}
+
+
+
+
+
+
+
+
+
+
+
+AjaxController.java
+package com.example.AjaxEX.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.example.AjaxEX.dto.AjaxDTO;
+
+
+@Controller
+public class AjaxController 
+{
+	// http://localhost:9696/ex01
+	@GetMapping("/ex01")
+	public String ex01()
+	{
+		System.out.println("ajax-ex-01 request success");
+
+		return "index";
+	}
+	
+	// http://localhost:9696/ex02
+	@PostMapping("/ex02")
+	public @ResponseBody String ex02()
+	{
+		System.out.println("ajax-ex-02 request success");
+		return "Hello";
+	}
+	
+
+	@GetMapping("/ex03")
+	public @ResponseBody String ex03(@RequestParam("param1") String param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-03 request success");
+		System.out.println("param1의 값 : " + param1);
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-03 request success";
+	}
+	
+
+	@PostMapping("/ex04")
+	public @ResponseBody String ex04(@RequestParam("param1") int param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-04 request success");
+		System.out.println("param1의 값 : " + (param1 + 10));
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-04 request success";
+	}
+	
+
+	@GetMapping("/ex05")
+	public @ResponseBody AjaxDTO ex05(@ModelAttribute AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-05 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		return ajaxDTO;
+	}
+	
+	
+	@PostMapping("/ex06")
+	public @ResponseBody AjaxDTO ex06(@ModelAttribute AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-06 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());		
+		return ajaxDTO;
+	}
+	
+
+	@PostMapping("/ex07")
+	public @ResponseBody AjaxDTO ex07(@RequestBody AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-07 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());	
+		return ajaxDTO;
+	}
+	
+	
+	//List<AjaxDTO> : [{객체}, {객체}, {객체},...]형식으로 data 전송,  DB table의 record = 객체 / select * from ~;랑 똑같은 기능
+	@PostMapping("/ex08")
+	public @ResponseBody List<AjaxDTO> ex08(@RequestBody AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-08 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		
+		//ajaxDTO안에 data 들어오면, 저장할 List 선언
+		List<AjaxDTO> DTOList = new ArrayList<>();
+		
+		// List에서 가져온 object들
+		DTOList.add(ajaxDTO);
+		DTOList.add(new AjaxDTO("value1", "value2")); // 생성자 이용해서 값 넣기
+		DTOList.add(new AjaxDTO("value3", "value4")); // 생성자 이용해서 값 넣기
+		return DTOList;
+	}
+	
+}
+
+
+
+
+
+
+ajax-ex-08.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ajax-ex-08</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax + POST요청 + JSON + DTO로 Request/Response + LIST</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex08
+		const exFn = () => 
+		{
+			const val1 = 88;
+			const params = {param1 : val1, param2 : "888888"};
+			console.log("호출 성공")
+			$.ajax({type : "POST", url : "/ex08",
+				contentType : "application/json",
+				data : JSON.stringify(params),
+				success : function(res){console.log("Success : ", res.data)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
+
+
+
+============================================================================================================
+16:35
+
+
+AjaxController.java
+
+package com.example.AjaxEX.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.example.AjaxEX.dto.AjaxDTO;
+
+
+@Controller
+public class AjaxController 
+{
+	// http://localhost:9696/ex01
+	@GetMapping("/ex01")
+	public String ex01()
+	{
+		System.out.println("ajax-ex-01 request success");
+
+		return "index";
+	}
+	
+	// http://localhost:9696/ex02
+	@PostMapping("/ex02")
+	public @ResponseBody String ex02()
+	{
+		System.out.println("ajax-ex-02 request success");
+		return "Hello";
+	}
+	
+
+	@GetMapping("/ex03")
+	public @ResponseBody String ex03(@RequestParam("param1") String param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-03 request success");
+		System.out.println("param1의 값 : " + param1);
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-03 request success";
+	}
+	
+
+	@PostMapping("/ex04")
+	public @ResponseBody String ex04(@RequestParam("param1") int param1, @RequestParam("param2") String param2)
+	{
+		System.out.println("ajax-ex-04 request success");
+		System.out.println("param1의 값 : " + (param1 + 10));
+		System.out.println("param2의 값 : " + param2);
+		return "ajax-ex-04 request success";
+	}
+	
+
+	@GetMapping("/ex05")
+	public @ResponseBody AjaxDTO ex05(@ModelAttribute AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-05 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		return ajaxDTO;
+	}
+	
+	
+	@PostMapping("/ex06")
+	public @ResponseBody AjaxDTO ex06(@ModelAttribute AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-06 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());		
+		return ajaxDTO;
+	}
+	
+
+	@PostMapping("/ex07")
+	public @ResponseBody AjaxDTO ex07(@RequestBody AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-07 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());	
+		return ajaxDTO;
+	}
+	
+	
+	@PostMapping("/ex08")
+	public @ResponseBody List<AjaxDTO> ex08(@RequestBody AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-08 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		
+		List<AjaxDTO> DTOList = new ArrayList<>();
+		DTOList.add(ajaxDTO);
+		DTOList.add(new AjaxDTO("value1", "value2"));
+		DTOList.add(new AjaxDTO("value3", "value4"));
+		return DTOList;
+	}
+	
+	//ResponseEntity : JSON형식으로 변환해서 전송(HTTP Status code까지 설정해서 전송 가능) - RestAPI통신시 많이 사용 / 객체다
+	// client에서 좀 더 세밀한 control이 가능
+	@PostMapping("/ex09")
+	public ResponseEntity ex09(@RequestBody AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-09 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		
+		// return할 때, ajaxDTO를 JSON형식으로 변환한 객체랑 HTTP Status code전송 
+		return new ResponseEntity<>(ajaxDTO, HttpStatus.OK);
+	}
+	
+	@PostMapping("/ex10")
+	public ResponseEntity ex10(@RequestBody AjaxDTO ajaxDTO)
+	{
+		System.out.println("ajax-ex-10 request success");
+		System.out.println("param1의 값 : " + ajaxDTO.getParam1());
+		System.out.println("param2의 값 : " + ajaxDTO.getParam2());
+		
+		List<AjaxDTO> DTOList = new ArrayList<>();
+		DTOList.add(ajaxDTO);
+		DTOList.add(new AjaxDTO("1eulav", "2eulav"));
+		DTOList.add(new AjaxDTO("3eulav", "4eulav"));
+		
+		// return할 때, 배열+JSON형식으로 변환한 객체랑 HTTP Status code전송 
+		return new ResponseEntity<>(DTOList, HttpStatus.OK);
+	}
+}
+
+
+
+
+
+
+
+ajax-ex-09.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ajax-ex-09</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax + POST요청 + JSON + DTO로 Request/Response + ResponseEntity</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출 - return : {객체}</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex08
+		const exFn = () => 
+		{
+			const val1 = 99;
+			const params = {param1 : val1, param2 : "99999"};
+			console.log("호출 성공")
+			$.ajax({type : "POST", url : "/ex09",
+				contentType : "application/json",
+				data : JSON.stringify(params),
+				// res(Server에서 보낸 값) + HTTP Status code
+				success : function(res, status){console.log("Success : ", res.data), console.log("status : ", status)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+ajax-ex-10.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Ajax-ex-10</title>
+		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	</head>
+	<body>
+		<h1>Ajax + POST요청 + JSON + DTO로 Request/Response + ResponseEntity - [{object},{object},{object}]</h1>
+		<hr>
+		<br>
+		<button onclick="exFn()">Ajax Request Func. 호출 - return : {객체}</button>
+	</body>
+	<script type = "text/javascript">
+		// http://localhost:9696/ex10
+		const exFn = () => 
+		{
+			const val1 = 100;
+			const params = {param1 : val1, param2 : "100000000000000"};
+			console.log("호출 성공")
+			$.ajax({type : "POST", url : "/ex10",
+				contentType : "application/json",
+				data : JSON.stringify(params),
+				success : function(res, status){console.log("Success : ", res), console.log("status : ", status)},
+				error : function(err){console.log("Fail : ", err)}
+			})
+		} 
+	</script>
+</html>
 
 ============================================================================================================
 17:38
+
+실습
+movie-lab.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js">
+</script> 
+</head>
+<body>
+	<h1>Ajax -Movie-LAB (영화 json 데이터 서버의 DB에 입력)</h1>
+	<button onclick="ajaxLab2Fn()">ajaxLab2 함수 호출 하기</button>
+			
+</body>
+
+<script type="text/javascript">
+
+	const ajaxLab2Fn = () => {
+		//console.log("함수 호출 성공 ")
+		//const val1 = "Hello Spring Boot!!"; 
+		
+		const params = {
+				"backdrop_path": "https://image.tmdb.org/t/p/w1280/r7Dfg9aRZ78gJsmDlCirIIlNH3d.jpg",
+				"id_num": 785084,
+				"original_language": "en",
+				"original_title": "The Whale",
+				"overview": "272kg의 거구로 세상을 거부한 채 살아가는 대학 강사 찰리는 남은 시간이 얼마 없음을 느끼고 오랫동안 만나지 못한 10대 딸 엘리를 집으로 초대한다. 그리고, 매일 자신을 찾아와 에세이 한 편을 완성하면 전 재산을 주겠다고 제안한다.",
+				"poster_path": "https://image.tmdb.org/t/p/w1280/q0xV5Lnq30JiegbVGBOvVwrgUDT.jpg",
+				"release_date": "2023-03-01",
+				"title": "더 웨일",
+				"vote_count": 1165}
+		
+		$.ajax ({		// ajax 구문블락 
+			//요청 방식 : get / post
+			//요청 주소 : /ex07		<== Controller로 보내는 요청 주소 
+			type:"post",
+			url:"/movie/post",
+			
+			// parameter 값을 서버로 전송 할때, JavaScript 객체로 전송하는 것이 아니라 JSON 형식으로 전송했을때는 
+			// 서버에서 @RequestBody 어노테이션으로 받아야 한다. 
+			// data를 서버로 전송할때 JSON 형식이라고 선언후 전송 
+			data:JSON.stringify(params),			//변수를 서버로 전송시 JSON선언후 전송 
+			contentType:"application/json",
+			
+			//요청이 성공했을때 실행되는 부분 
+			success:function(res){			//res <== 서버에서 리턴받은 DTO 
+				console.log("성공", res)	
+			//	console.log("param1 의 값 : ", res.title)
+			//	console.log("param2 의 값 : ", res.poster_path)
+			},
+			
+			//요청이 실패 했을때 실행되는 블락 (예외 처리 )
+			error:function(){
+				console.log("실패 ")
+			}			
+			
+		})
+		
+	}
+
+</script>
+</body>
+</html>
+
+
+
+index.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Index</title>
+	</head>
+	<body>
+		<h1>Ajax실습</h1>
+		<hr>
+		<a href="ajax-ex-01">01. GET request</a> <br> <br>
+		<a href="ajax-ex-02">02. POST request</a> <br> <br>
+		<a href="ajax-ex-03">03. GET + parameter request</a> <br> <br>
+		<a href="ajax-ex-04">04. POST + parameter request</a> <br> <br>
+		<a href="ajax-ex-05">05. GET request + parameter DTO로 받기</a> <br> <br>
+		<a href="ajax-ex-06">06. POST request + parameter DTO로 받기</a> <br> <br>
+		<a href="ajax-ex-07">07. Ajax + POST request + JSON + DTO로 Request/Response</a> <br> <br>
+		<a href="ajax-ex-08">08. Ajax + POST request + JSON + DTO로 Request/Response + ArrayList</a> <br> <br>
+		<a href="ajax-ex-09">09. Ajax + POST요청 + JSON + DTO로 Request/Response + ResponseEntity</a> <br> <br>
+		<a href="ajax-ex-10">10. Ajax + POST요청 + JSON + DTO로 Request/Response + ResponseEntity - [{object},{object},{object}]</a> <br> <br>
+		<a href="movie-lab">11. Movie-LAB</a> <br> <br>
+
+	</body>
+</html>
+
+
+
+
+indexController.java
+package com.example.AjaxEX.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+//요청에 대해 view page 던져주는 Controller
+
+@Controller
+public class IndexController 
+{
+	@GetMapping("/")
+	// http://localhost:9696/
+	public String index()
+	{
+		return "index";
+	}
+	
+	@GetMapping("/ajax-ex-01")
+	// http://localhost:9696/
+	public String ajax01()
+	{
+		return "ajax-ex-01";
+	}
+	
+	@GetMapping("/ajax-ex-02")
+	// http://localhost:9696/
+	public String ajax02()
+	{
+		return "ajax-ex-02";
+	}
+	
+	@GetMapping("/ajax-ex-03")
+	// http://localhost:9696/
+	public String ajax03()
+	{
+		return "ajax-ex-03";
+	}
+	
+	@GetMapping("/ajax-ex-04")
+	// http://localhost:9696/
+	public String ajax04()
+	{
+		return "ajax-ex-04";
+	}
+	
+	@GetMapping("/ajax-ex-05")
+	// http://localhost:9696/
+	public String ajax05()
+	{
+		return "ajax-ex-05";
+	}
+	
+	@GetMapping("/ajax-ex-06")
+	// http://localhost:9696/
+	public String ajax06()
+	{
+		return "ajax-ex-06";
+	}
+	
+	@GetMapping("/ajax-ex-07")
+	// http://localhost:9696/
+	public String ajax07()
+	{
+		return "ajax-ex-07";
+	}
+	
+	@GetMapping("/ajax-ex-08")
+	// http://localhost:9696/
+	public String ajax08()
+	{
+		return "ajax-ex-08";
+	}
+	
+	@GetMapping("/ajax-ex-09")
+	// http://localhost:9696/
+	public String ajax09()
+	{
+		return "ajax-ex-09";
+	}
+	
+	@GetMapping("/ajax-ex-10")
+	// http://localhost:9696/
+	public String ajax10()
+	{
+		return "ajax-ex-10";
+	}
+	
+	@GetMapping("/movie_lab")
+	// http://localhost:9696/
+	public String movie_lab()
+	{
+		return "movie-lab";
+	}
+}
+
+
+
+
+
+

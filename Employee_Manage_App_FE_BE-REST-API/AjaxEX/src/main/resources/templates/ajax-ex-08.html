@@ -2,29 +2,27 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>Ahax-ex-01</title>
+		<title>Ajax-ex-08</title>
 		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 	</head>
 	<body>
-		<h1>Ajax이용해서 GET요청 보내기</h1>
+		<h1>Ajax + POST요청 + JSON + DTO로 Request/Response + ArrayList</h1>
 		<hr>
 		<br>
 		<button onclick="exFn()">Ajax Request Func. 호출</button>
 	</body>
 	<script type = "text/javascript">
-		// http://localhost:9696/ex01
+		// http://localhost:9696/ex08
 		const exFn = () => 
 		{
+			const val1 = 88;
+			const params = {param1 : val1, param2 : "888888"};
 			console.log("호출 성공")
-			$.ajax({
-				type : "get", // Request Method
-				url : "/ex01", //Request URL
-				//요청 성공 시 실행 : HTTP status code = 200(OK) / res = server에서 보내는 값
+			$.ajax({type : "POST", url : "/ex08",
+				contentType : "application/json",
+				data : JSON.stringify(params),
 				success : function(res){console.log("Success : ", res.data)},
-				//요청 실패시 실행 : HTTP status code = 404, 405, 500, etc... / err = server에서 보내는 값
-				error : function(err){
-					console.log("Fail : ", err)}
-				
+				error : function(err){console.log("Fail : ", err)}
 			})
 		} 
 	</script>

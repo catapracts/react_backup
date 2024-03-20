@@ -84,4 +84,11 @@ public class IndexController
 	{
 		return "ajax-ex-10";
 	}
+	
+	@GetMapping("/movie_lab")
+	// http://localhost:9696/
+	public String movielab()
+	{
+		return "movie_lab";
+	}
 }
