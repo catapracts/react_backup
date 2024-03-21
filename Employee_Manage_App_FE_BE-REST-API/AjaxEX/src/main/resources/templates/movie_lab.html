@@ -9,52 +9,163 @@
 <body>
 	<h1>Ajax - Movie-LAB (영화 json 데이터 서버의 DB에 입력)</h1>
 	<button onclick="ajaxLab2Fn()">ajaxLab2 함수 호출 하기</button>
+	<button onclick="ajaxSaveFn()">데이터 DB에 저장</button>
+	<button onclick="ajaxGETALLFn()">Server의 GET요청으로 DB값 전체 console에 출력</button>
+	<button onclick="ajaxGETFn()">Server의 GET요청으로 DB값 1개 console에 출력</button>
+	<button onclick="ajaxPUTFn()">Server의 PUT요청으로 DB값 console에 출력</button>
+	<button onclick="ajaxDELETEFn()">Server의 DELETE요청으로 DB값 console에 출력</button>
 			
 </body>
 
 <script type="text/javascript">
 
-	const ajaxLab2Fn = () => {
-		//console.log("함수 호출 성공 ")
-		//const val1 = "Hello Spring Boot!!"; 
-		
-		const params = {
-				"backdrop_path": "https://image.tmdb.org/t/p/w1280/r7Dfg9aRZ78gJsmDlCirIIlNH3d.jpg",
-				"id_num": 785084,
-				"original_language": "en",
-				"original_title": "The Whale",
-				"overview": "272kg의 거구로 세상을 거부한 채 살아가는 대학 강사 찰리는 남은 시간이 얼마 없음을 느끼고 오랫동안 만나지 못한 10대 딸 엘리를 집으로 초대한다. 그리고, 매일 자신을 찾아와 에세이 한 편을 완성하면 전 재산을 주겠다고 제안한다.",
-				"poster_path": "https://image.tmdb.org/t/p/w1280/q0xV5Lnq30JiegbVGBOvVwrgUDT.jpg",
-				"release_date": "2023-03-01",
-				"title": "더 웨일",
-				"vote_count": 1165}
-		
-		$.ajax ({		// ajax 구문블락 
-			//요청 방식 : get / post
-			//요청 주소 : /ex07		<== Controller로 보내는 요청 주소 
+	const params = {
+		"backdrop_path": "https://image.tmdb.org/t/p/w1280/r7Dfg9aRZ78gJsmDlCirIIlNH3d.jpg",
+		"id_num": 785084,
+		"original_language": "en",
+		"original_title": "The Whale",
+		"overview": "272kg의 거구로 세상을 거부한 채 살아가는 대학 강사 찰리는 남은 시간이 얼마 없음을 느끼고 오랫동안 만나지 못한 10대 딸 엘리를 집으로 초대한다. 그리고, 매일 자신을 찾아와 에세이 한 편을 완성하면 전 재산을 주겠다고 제안한다.",
+		"poster_path": "https://image.tmdb.org/t/p/w1280/q0xV5Lnq30JiegbVGBOvVwrgUDT.jpg",
+		"release_date": "2023-03-01",
+		"title": "더 웨일",
+		"vote_count": 1165}
+	
+	
+	// GET, movie 테이블 전체 List 가져오기, 성공 이후 res값으로 Logic 처리, 실패 시 ree로 error code 띄우기
+	const ajaxGETALLFn = () =>
+	{
+		$.ajax({
+			type : "GET",
+			url : "http://localhost:9696/get",
+			success:function(res)
+			{ 
+				console.log("GET으로 가져오기 성공", res);
+				
+			},
+			error:function(err)
+			{
+				console.log("GET으로 가져오기 실패 : ",err);
+			}	
+		})
+	}
+	
+	
+	const ajaxGETFn = () =>
+	{
+		$.ajax({
+			type : "GET",
+			url : "http://localhost:9696/getone",
+			data : { id : "1"},
+			success : function(data, res)
+			{
+				console.log("GET으로 1개 가져오기 성공", data);
+				console.log(res);
+			},
+			error : function()
+			{
+				console.log("GET으로 1개 가져오기 실패", err);
+			}
+			
+		})		
+	}
+
+
+	const ajaxLab2Fn = () => 
+	{
+		$.ajax ({
 			type:"post",
 			url:"/movie/post",
-			
-			// parameter 값을 서버로 전송 할때, JavaScript 객체로 전송하는 것이 아니라 JSON 형식으로 전송했을때는 
+						// parameter 값을 서버로 전송 할때, JavaScript 객체로 전송하는 것이 아니라 JSON 형식으로 전송했을때는 
 			// 서버에서 @RequestBody 어노테이션으로 받아야 한다. 
 			// data를 서버로 전송할때 JSON 형식이라고 선언후 전송 
 			data:JSON.stringify(params),			//변수를 서버로 전송시 JSON선언후 전송 
 			contentType:"application/json",
-			
-			//요청이 성공했을때 실행되는 부분 
+						//요청이 성공했을때 실행되는 부분 
 			success:function(res){			//res <== 서버에서 리턴받은 DTO 
 				console.log("성공", res)	
 			//	console.log("param1 의 값 : ", res.title)
 			//	console.log("param2 의 값 : ", res.poster_path)
 			},
-			
-			//요청이 실패 했을때 실행되는 블락 (예외 처리 )
+						//요청이 실패 했을때 실행되는 블락 (예외 처리 )
 			error:function(){
 				console.log("실패 ")
 			}			
+		})
+	}
+	
+	
+	const ajaxSaveFn = () =>
+	{
+		$.ajax({
+			type : "post",
+			url : "movie/create",
+			contentType : "application/json",
+			data : JSON.stringify(params),
+			success : function(res)
+			{
+				console.log("create완료", res)
+			},		
+			error : function()
+			{
+				console.log("create실패")
+			}
 			
 		})
-		
+	}
+
+	
+	
+	const paramss = {
+			"backdrop_path": "https://image.tmdb.org/t/p/w1280/r7Dfg9aRZ78gJsmDlCirIIlNH3d.jpg",
+			"id_num": 123456,
+			"original_language": "KO",
+			"original_title": "수정",
+			"overview": "DU",
+			"poster_path": "https://image.tmdb.org/t/p/w1280/q0xV5Lnq30JiegbVGBOvVwrgUDT.jpg",
+			"release_date": "2023-03-01",
+			"title": "더 웨일",
+			"vote_count": 1165}
+	
+	
+	const id = 1;
+	
+	const ajaxPUTFn = () =>
+	{
+		//console.log("함수 호출 확인")
+		$.ajax({
+			type : "PUT",
+			url : "movie/1",
+			contentType : "application/json",
+			data : JSON.stringify(paramss),
+			success : function(res)
+			{
+				console.log("Update완료", res)
+			},		
+			error : function(err)
+			{
+				console.log("Update실패", err)
+			}
+			
+		})		
+	}
+	
+	const ajaxDELETEFn = () =>
+	{
+		$.ajax({
+			type : "DELETE",
+			url : "movie/delete",
+			contentType : "application/json",
+			data : JSON.stringify(params),
+			success : function(res)
+			{
+				console.log("Delete완료", res)
+			},		
+			error : function()
+			{
+				console.log("Delete실패")
+			}
+			
+		})		
 	}
 
 </script>
